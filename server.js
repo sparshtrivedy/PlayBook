@@ -13,6 +13,8 @@ const pool = new Pool ({
     port: 5532
 });
 
+require("dotenv").config();
+
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,7 +38,7 @@ app.post('/login', async (req, res) => {
     const user = result.rows[0]
 
     if (user) {
-        const token = jwt.sign({user}, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlNwYXJzaCBUcml2ZWR5IiwiaWF0IjoxNTE2MjM5MDIyfQ.UhzeQQYXbYgUP1oNfTnzojUypZLyAi55FOA2E0JRkUE', { expiresIn: '1h' });
+        const token = jwt.sign({user}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME });
 
         res.json({ user, token });
     } else {
@@ -53,7 +55,7 @@ const authenticateJWT = (req, res, next) => {
     }
   
     try {
-      const decoded = jwt.verify(token, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlNwYXJzaCBUcml2ZWR5IiwiaWF0IjoxNTE2MjM5MDIyfQ.UhzeQQYXbYgUP1oNfTnzojUypZLyAi55FOA2E0JRkUE');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded.user;
       console.log(decoded)
       next();
