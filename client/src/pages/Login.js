@@ -23,6 +23,7 @@ function Login() {
       localStorage.setItem('lastname', response.data.user.lastname);
       localStorage.setItem('email', response.data.user.email);
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('role', response.data.user.role? 'Manager': 'Admin');
 
       navigate('/dashboard');
     } catch (error) {

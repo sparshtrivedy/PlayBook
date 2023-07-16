@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-// const bcrypt = require('bcrypt');
+const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
@@ -23,19 +23,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: 'http://localhost:3000',
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
-
-// Define a route
-
 
 app.post('/login', async (req, res) => {
     const { username, password} = req.body;
 
     // Replace this with your actual user authentication logic
-    const result = await pool.query("SELECT * FROM Users WHERE UserName = $1 AND Password = $2", [username, password]);
+    const result = await pool.query("SELECT * FROM Users WHERE username = $1 AND password = $2", [username, password]);
     const user = result.rows[0]
 
     if (user) {
@@ -49,7 +46,6 @@ app.post('/login', async (req, res) => {
 
 const authenticateJWT = (req, res, next) => {
     const token = req.headers.authorization;
-    console.log(token)
   
     if (!token) {
       return res.status(401).json({ error: 'Unauthorized' });
@@ -58,36 +54,123 @@ const authenticateJWT = (req, res, next) => {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded.user;
-      console.log(decoded)
       next();
     } catch (error) {
       return res.status(403).json({ error: 'Invalid token' });
     }
 };
 
-app.get('/', (req, res) => {
-    pool.query('SELECT * FROM Users', (err, result) => {
-        if (err) {
-          console.error('Error executing query', err);
-          res.status(500).send('Error retrieving users');
-        } else {
-          res.json(result.rows);
-        }
-    });
+app.get('/users', (req, res) => {
+  pool.query('SELECT * FROM Users', (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
 });
 
-app.put('/update-user', authenticateJWT, async (req, res) => {
-    const id = req.user.username;
-    const { username, email, password, firstname, lastname } = req.body;
+app.get('/teams', (req, res) => {
+  pool.query('SELECT Team.*, Users.username, Users.firstname, Users.lastname FROM Team JOIN Users ON Team.UID=Users.UID', (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
 
-    // Replace this with your actual user authentication logic
+app.get('/players/:tid', (req, res) => {
+  const tid = req.params['tid'];
 
-    pool.query('UPDATE Users SET username = $1, email = $2, password = $3, firstname = $4, lastname = $5 WHERE username = $6', [username, email, password, firstname, lastname, id], (error, results) => {
+  pool.query('SELECT * FROM Player WHERE TID = $1', [tid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.post('/add-player/:tid', (req, res) => {
+  const pid = uuidv4(); 
+  const tid = req.params['tid'];
+  const {firstname, lastname, number} = req.body;
+
+  pool.query('INSERT INTO Player VALUES ($1, $2, $3, $4, $5)', [pid, tid, firstname, lastname, number], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.put('/update-player/:pid', (req, res) => {
+  const pid = req.params['pid'];
+  const {firstname, lastname, number, tid} = req.body;
+  console.log(req.body)
+  pool.query('UPDATE Player SET firstname = $1, lastname = $2, number = $3, TID = $4 WHERE PID = $5', [firstname, lastname, number, tid, pid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.post('/add-user', (req, res) => {
+  const uid = uuidv4(); 
+  const { username, email, password, firstname, lastname, role } = req.body;
+
+  pool.query("INSERT INTO Users VALUES ($1, $2, $3, $4, $5, $6, $7)", [uid, username, firstname, lastname, email, password, role], (error, results) => {
+    if (error) {
+      throw error;
+    }
+    res.status(200).send(`User added with id: ${uid}`)
+  });
+});
+
+app.post('/add-team', (req, res) => {
+  const tid = uuidv4(); 
+  const { uid, city, name, win_rate } = req.body;
+  
+  console.log(tid)
+
+  pool.query("INSERT INTO Team VALUES ($1, $2, $3, $4, $5)", [tid, uid, city, name, win_rate], (error, results) => {
+    if (error) {
+      throw error;
+    }
+    res.status(200).send(`Team added with id: ${tid}`)
+  });
+});
+
+app.put('/update-user', (req, res) => {
+    const uid = req.body.uid;
+    const { username, email, password, firstname, lastname, role } = req.body;
+
+    pool.query('UPDATE Users SET username = $1, email = $2, password = $3, firstname = $4, lastname = $5, role = $6 WHERE UID = $7', [username, email, password, firstname, lastname, role, uid], (error, results) => {
         if (error) {
             throw error;
         }
-        res.status(200).send(`User modified with username: ${id}`)
+        res.status(200).send(`User modified with id: ${uid}`)
     });
+});
+
+app.put('/delete-user', authenticateJWT, async (req, res) => {
+  const uid = req.user.UID;
+
+  pool.query('DELETE FROM Users WHERE UID = $1', [uid], (error, results) => {
+      if (error) {
+          throw error;
+      }
+      res.status(200).send(`User deleted with id: ${uid}`)
+  });
 });
 
 // Start the server

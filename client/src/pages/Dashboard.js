@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button, Navbar, Container } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
+import AdminTabs from './AdminTabs'
 
 const Dashboard = () => {
     const navigate = useNavigate()
@@ -11,13 +12,18 @@ const Dashboard = () => {
                     <Navbar.Brand className='text-light'>
                         Sports Manager
                     </Navbar.Brand>
+                    <Navbar.Toggle aria-controls="navbarScroll" />
+                    <Navbar.Collapse id="navbarScroll" className="justify-content-end">
+                        <Navbar.Text>
+                            Hello, {localStorage.getItem('firstname')}
+                        </Navbar.Text>
+                        <Button className='mx-3' variant='outline-light' onClick={() => {localStorage.clear(); navigate('/landing')}}>Logout</Button>                        
+                    </Navbar.Collapse>
                 </Container>
-                <Navbar.Text className='px-3'>Hello, {localStorage.getItem('firstname')}</Navbar.Text>
-                <Button variant='outline-light' onClick={() => {localStorage.clear(); navigate('/landing')}}>Logout</Button>
             </Navbar>
             <div className='m-3 text-center'>
-                <h2>Dashboard</h2>
-               
+                <h2>{localStorage.getItem('role')} Dashboard</h2>
+               <AdminTabs />
             </div>
         </>
     )
