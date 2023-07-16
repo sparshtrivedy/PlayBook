@@ -83,7 +83,34 @@ app.get('/teams', (req, res) => {
 });
 
 app.get('/venues', (req, res) => {
-  pool.query('SELECT * FROM VENUE', (err, result) => {
+  pool.query('SELECT * FROM Venue', (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.put('/update-venue', (req, res) => {
+  const {name, city, capacity, vid} = req.body;
+
+  pool.query('UPDATE Venue SET name=$1, city=$2, capacity=$3 WHERE vid=$4', [name, city, capacity, vid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.post('/add-venue', (req, res) => {
+  const vid = uuidv4();
+  const {name, city, capacity} = req.body;
+
+  pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, city, capacity], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -154,6 +181,19 @@ app.get('/players/:tid', (req, res) => {
   const tid = req.params['tid'];
 
   pool.query('SELECT * FROM Player WHERE TID = $1', [tid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.get('/sponsors/:vid', async (req, res) => {
+  const vid = req.params['vid'];
+
+  pool.query('SELECT s.*, v.vid, v.name as venue, s1.contribution FROM Sponsor s JOIN Sponsors s1 ON s.sid = s1.sid JOIN Venue v ON v.vid = s1.vid WHERE v.vid = $1', [vid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
