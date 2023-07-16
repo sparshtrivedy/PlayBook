@@ -9,12 +9,21 @@ const Games = () => {
     const [game, setGame] = useState({});
     const [show, setShow] = useState(false);
     const [showAddGame, setShowAddGame] = useState(false);
+    const [showAttendees, setShowAttendees] = useState(false);
 
     const handleShow = async (e) => {
         const date = e.target.id.split('_')[1];
         setGame(games.filter(game => game.date === date)[0])
         setShow(true);
     }
+
+    const handleShowAttendees = async (e) => {
+        const date = e.target.id.split('_')[1];
+        setGame(games.filter(game => game.date === date)[0])
+        setShowAttendees(true);
+    }
+
+    const handleAttendeesClose = () => setShowAttendees(false);
 
     const handleAddGameShow = async (e) => {
         setShowAddGame(true);
@@ -113,7 +122,8 @@ const Games = () => {
                                 <td>{game.capacity}</td>
                                 <td>
                                     <Button id={`editgame_${game.date}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
-                                    <Button id={`deletegame_${game.date}`} variant='danger' size="sm">Delete</Button>
+                                    <Button id={`deletegame_${game.date}`} variant='danger' size="sm">Delete</Button>{' '}
+                                    <Button id={`attendees_${game.date}`} variant='primary' size="sm" onClick={handleShowAttendees}>Attendees</Button>
                                 </td>
                             </tr>
                         )
@@ -246,6 +256,35 @@ const Games = () => {
                             Save
                         </Button>
                     </Form>
+                </Offcanvas.Body>
+            </Offcanvas>
+
+            <Offcanvas show={showAttendees} placement='bottom' onHide={handleAttendeesClose}>
+                <Offcanvas.Header className='bg-primary' closeButton>
+                    <Offcanvas.Title className='text-light'>Attendees</Offcanvas.Title>
+                    <div className='text-light'>{game.date}</div>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Seat Number</th>
+                                <th>Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {/* {sponsors.map((sponsor) => {
+                                return (
+                                    <tr key={sponsor.sid}>
+                                        <td>{sponsor.name}</td>
+                                        <td>{sponsor.contribution}</td>
+                                    </tr>
+                                )
+                            })} */}
+                        </tbody>
+                    </Table>
                 </Offcanvas.Body>
             </Offcanvas>
         </>
