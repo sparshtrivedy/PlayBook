@@ -4,6 +4,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import Users from './Users';
 import Teams from './Teams';
 import Games from './Games';
+import Venues from './Venues';
 
 const AdminTabs = () => {
     return (
@@ -22,12 +23,9 @@ const AdminTabs = () => {
             <Tab eventKey="games" title="Games">
                 <Games />
             </Tab>
-            {/* <Tab eventKey="longer-tab" title="Loooonger Tab">
-                Tab content for Loooonger Tab
+            <Tab eventKey="venues" title="Venues">
+                <Venues />
             </Tab>
-            <Tab eventKey="contact" title="Contact">
-                Tab content for Contact
-            </Tab> */}
         </Tabs>
     );
 }
