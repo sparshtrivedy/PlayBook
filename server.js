@@ -82,6 +82,74 @@ app.get('/teams', (req, res) => {
   });
 });
 
+app.get('/venues', (req, res) => {
+  pool.query('SELECT * FROM VENUE', (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.get('/games', (req, res) => {
+  pool.query('SELECT CAST(g.date AS CHAR(10)), g.sport, g.start_time, g.end_time, v.name as venue, v.vid, v.city, v.capacity, t.name as home, t.tid as home_tid, t1.name as away, t1.tid as away_tid FROM Game g JOIN Venue v ON g.vid=v.vid JOIN Plays p ON g.date=p.date JOIN Team t ON t.tid=p.home_tid JOIN Team t1 ON t1.tid=p.away_tid', (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.get('/games/:date', (req, res) => {
+  const date = req.params['date'];
+  pool.query('SELECT CAST(g.date AS CHAR(10)), g.sport, g.start_time, g.end_time, v.name as venue, v.city, v.capacity, t.name as home, t1.name as away FROM Game g JOIN Venue v ON g.vid=v.vid JOIN Plays p ON g.date=p.date JOIN Team t ON t.tid=p.home_tid JOIN Team t1 ON t1.tid=p.away_tid WHERE g.date = $1', [date], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.put('/update-game', async (req, res) => {
+  const { date, sport, start_time, end_time, vid, home_tid, away_tid} = req.body;
+
+  try {
+    // First SQL statement
+    const updateGameResult = await pool.query('UPDATE Game SET sport=$1, start_time=$2, end_time=$3, vid=$4 WHERE date=$5', [sport, start_time, end_time, vid, date]);
+  
+    // Second SQL statement
+    const updatePlaysResult = await pool.query('UPDATE Plays SET home_tid=$2, away_tid=$3 WHERE date=$1', [date, home_tid, away_tid]);
+  
+    res.json({ gameResult: updateGameResult.rows, playsResult: updatePlaysResult.rows });
+  } catch (err) {
+    console.error('Error executing queries', err);
+    res.status(500).send('Error updating database');
+  }
+});
+
+app.put('/add-game', async (req, res) => {
+  const { date, sport, start_time, end_time, vid, home_tid, away_tid} = req.body;
+
+  try {
+    // First SQL statement
+    const addGameResult = await pool.query('INSERT INTO Game VALUES ($1, $2, $3, $4, $5)', [date, vid, sport, start_time, end_time]);
+  
+    // Second SQL statement
+    const addPlaysResult = await pool.query('INSERT INTO Plays VALUES ($1, $2, $3)', [home_tid, away_tid, date]);
+  
+    res.json({ gameResult: addGameResult.rows, playsResult: addPlaysResult.rows });
+  } catch (err) {
+    console.error('Error executing queries', err);
+    res.status(500).send('Error inserting into database');
+  }
+});
+
 app.get('/players/:tid', (req, res) => {
   const tid = req.params['tid'];
 

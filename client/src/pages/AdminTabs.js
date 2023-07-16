@@ -8,7 +8,7 @@ import Games from './Games';
 const AdminTabs = () => {
     return (
         <Tabs
-          defaultActiveKey="profile"
+          defaultActiveKey="users"
           id="fill-tab-example"
           className="mb-3"
           fill
