@@ -15,14 +15,18 @@ const Dashboard = () => {
                         <img src={logo} alt='get-it-together' className='logo' />
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls="navbarScroll" />
-                    <Navbar.Collapse id="navbarScroll" className="justify-content-end">
-                        <Navbar.Text>
-                            Hello, {localStorage.getItem('firstname')}
-                        </Navbar.Text>
-                        <Button className='mx-3 d-inline-flex align-items-center' variant='outline-light' onClick={() => {localStorage.clear(); navigate('/landing')}}>
-                            <span className='mx-2'>Logout</span>
-                            <FaArrowRightFromBracket />
-                        </Button>                        
+                    <Navbar.Collapse id="navbarScroll" className="d-flex align-items-end justify-content-end">
+                        <div>
+                            <Navbar.Text>
+                                <h5>👋 Hello, {localStorage.getItem('firstname')}!</h5>
+                            </Navbar.Text>
+                        </div>
+                        <div>
+                            <Button className='mx-3 d-inline-flex align-items-center' variant='outline-light' onClick={() => {localStorage.clear(); navigate('/landing')}}>
+                                <span className='mx-2'>Logout</span>
+                                <FaArrowRightFromBracket />
+                            </Button>
+                        </div>                       
                     </Navbar.Collapse>
                 </Container>
             </Navbar>

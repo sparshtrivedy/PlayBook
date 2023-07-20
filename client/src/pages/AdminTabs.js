@@ -10,24 +10,33 @@ const AdminTabs = () => {
     return (
         <Row>
             <Col md={3} className='mx-auto mb-3'>
-                <Card>
-                    <Card.Header className='bg-info'>
-                        <Card.Title className='m-2'>
-                            <h4>{localStorage.getItem('firstname')} {localStorage.getItem('lastname')}</h4>
-                        </Card.Title>
-                        <Badge bg={`${localStorage.getItem('role') === 'Admin'? 'primary': 'success'}`}>{localStorage.getItem('role')}</Badge>
-                    </Card.Header>
-                    <Card.Body className='p-0'>
-                        <Form.Group className="p-2 bg-light border-bottom">
-                            <Form.Label><strong>Username</strong></Form.Label>
-                            <Form.Control type="email" defaultValue={localStorage.getItem('username')} disabled/>
-                        </Form.Group>
-                        <Form.Group className="p-2 bg-light">
-                            <Form.Label><strong>Email</strong></Form.Label>
-                            <Form.Control type="email" defaultValue={localStorage.getItem('email')} disabled/>
-                        </Form.Group>
-                    </Card.Body>
-                </Card>
+                <Col md={11}>
+                    <Card>
+                        <Card.Header className='bg-info p-3'>
+                            <div>
+                                <FaUser className='bg-secondary rounded-circle pt-2' color='lightGray' size={50} />
+                            </div>
+                            <div>
+                                <Card.Title className='m-2'>
+                                    <h4 className='text-light'>{localStorage.getItem('firstname')} {localStorage.getItem('lastname')}</h4>
+                                </Card.Title>
+                            </div>
+                            <div>
+                                <Badge bg={`${localStorage.getItem('role') === 'Admin'? 'primary': 'success'}`}>{localStorage.getItem('role')}</Badge>
+                            </div>
+                        </Card.Header>
+                        <Card.Body className='p-0'>
+                            <Form.Group className="p-2 bg-light border-bottom">
+                                <Form.Label><strong>Username</strong></Form.Label>
+                                <Form.Control type="email" defaultValue={localStorage.getItem('username')} disabled/>
+                            </Form.Group>
+                            <Form.Group className="p-2 bg-light">
+                                <Form.Label><strong>Email</strong></Form.Label>
+                                <Form.Control type="email" defaultValue={localStorage.getItem('email')} disabled/>
+                            </Form.Group>
+                        </Card.Body>
+                    </Card>
+                </Col>
             </Col>
             <Col md={9} className='mx-auto'>
                 <Tabs

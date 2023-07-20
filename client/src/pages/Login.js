@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Button, Form, Card, Alert } from 'react-bootstrap';
+import { Button, Form, Card, Alert, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FaLock } from 'react-icons/fa6'
 
 function Login() {
   const navigate = useNavigate()
@@ -33,34 +34,42 @@ function Login() {
   };
 
   return (
-    <Card className='m-4 bg-light'>
-      <Card.Header style={{'backgroundColor': '#08a7cf'}}>
-        <h4 className='text-light text-center'>
-          Login
-        </h4>
-      </Card.Header>
-      <Alert variant='danger' className='m-3 p-2' show={showAlert}>
-        The username and password combination you have entered is incorrect
-      </Alert>
-      <Form onSubmit={handleSubmit}>
-        <Card.Body>
-          <Form.Group className="mb-3">
-            <Form.Label>Username</Form.Label>
-            <Form.Control type="text" placeholder="Enter username" onChange={(e) => setUsername(e.target.value)} />
-          </Form.Group>
+    <Col md={4} className='mx-auto'>
+      <Card className='m-4 bg-light'>
+        <Card.Header style={{'backgroundColor': '#08a7cf'}} className='d-block justify-content-center'>
+          <div className='d-flex justify-content-center m-3'>
+            <FaLock color='lightGray' size={36}/>
+          </div>
+          <div>
+            <h4 className='text-light text-center m-3'>
+              Login
+            </h4>
+          </div>
+          
+        </Card.Header>
+        <Alert variant='danger' className='m-3 p-2' show={showAlert}>
+          The username and password combination you have entered is incorrect
+        </Alert>
+        <Form onSubmit={handleSubmit}>
+          <Card.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Username</Form.Label>
+              <Form.Control type="text" placeholder="Enter username" onChange={(e) => setUsername(e.target.value)} />
+            </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Enter password" onChange={(e) => setPassword(e.target.value)} />
-          </Form.Group>
-        </Card.Body>
-        <Card.Footer className='d-flex justify-content-center' style={{'backgroundColor': '#08a7cf'}}>
-          <Button variant="outline-light" type="submit">
-            Login
-          </Button>
-        </Card.Footer>
-      </Form>
-    </Card>
+            <Form.Group className="mb-3">
+              <Form.Label>Password</Form.Label>
+              <Form.Control type="password" placeholder="Enter password" onChange={(e) => setPassword(e.target.value)} />
+            </Form.Group>
+          </Card.Body>
+          <Card.Footer className='d-flex justify-content-center' style={{'backgroundColor': '#08a7cf'}}>
+            <Button variant="outline-light" type="submit">
+              Login
+            </Button>
+          </Card.Footer>
+        </Form>
+      </Card>
+    </Col>
   );
 }
 
