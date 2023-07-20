@@ -25,6 +25,16 @@ const Venues = () => {
     }
 
     useEffect(() => {
+        const fetchSponsors = async () => {
+            console.log(venue.vid)
+            try {
+                const response = await axios.get(`http://localhost:5000/sponsors/${venue.vid}`);
+                setSponsors(response.data);
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
         fetchSponsors();
     }, [venue])
 
@@ -40,16 +50,6 @@ const Venues = () => {
         try {
             const response = await axios.get('http://localhost:5000/venues');
             setVenues(response.data);
-        } catch (error) {
-            console.log(error.message);
-        }
-    }
-
-    const fetchSponsors = async () => {
-        console.log(venue.vid)
-        try {
-            const response = await axios.get(`http://localhost:5000/sponsors/${venue.vid}`);
-            setSponsors(response.data);
         } catch (error) {
             console.log(error.message);
         }
