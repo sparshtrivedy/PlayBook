@@ -1,97 +1,138 @@
 CREATE TABLE Users (
-  UID UUID PRIMARY KEY,
-  UserName CHAR(20) NOT NULL UNIQUE,
-  FirstName CHAR(20) NOT NULL,
-  LastName CHAR(20) NOT NULL,
-  Email CHAR(50) NOT NULL,
-  Password CHAR(20) NOT NULL,
-  Role INTEGER NOT NULL
+	uid UUID,
+	firstname VARCHAR(20),
+	lastname VARCHAR(20),
+	email VARCHAR(50),
+	password VARCHAR(20),
+	role VARCHAR(50),
+  	PRIMARY KEY(uid)
 );
 
-CREATE TABLE Team (
-  TID UUID PRIMARY KEY,
-  UID UUID NOT NULL UNIQUE,
-  city CHAR(20),
-  name CHAR(20) NOT NULL,
-  win_rate CHAR(20),
-  FOREIGN KEY (UID) REFERENCES Users
+
+CREATE TABLE TeamManaged (
+	tid UUID,
+uid UUID UNIQUE NOT NULL,
+	name VARCHAR(20),
+winrate INTEGER,
+	city VARCHAR(20),
+	PRIMARY KEY(tid),
+	FOREIGN KEY(uid) REFERENCES Users
 );
 
-CREATE TABLE Player (
-	PID UUID PRIMARY KEY,
-  TID UUID NOT NULL,
-  firstname CHAR(20),
-  lastname CHAR(20),
-  number INTEGER,
-  FOREIGN KEY (TID) REFERENCES Team
+CREATE TABLE CoachSalary (
+	type VARCHAR(20),
+	specialization VARCHAR(20),
+	salary MONEY,
+	PRIMARY KEY(type, specialization)
 );
 
-CREATE TABLE Venue (
-	VID UUID PRIMARY KEY,
-  name CHAR(20) NOT NULL,
-  city CHAR(20),
-  capacity INTEGER
-);
-
-CREATE TABLE Game (
-	date DATE PRIMARY KEY,
-  VID UUID NOT NULL,
-  sport CHAR(20) NOT NULL,
-  start_time CHAR(20),
-  end_time CHAR(20),
-  FOREIGN KEY (VID) REFERENCES Venue
-);
-
-CREATE TABLE Manages (
-  UID UUID NOT NULL,
-  date DATE NOT NULL,
-  PRIMARY KEY (UID, date),
-  FOREIGN KEY (UID) REFERENCES Users,
-  FOREIGN KEY (date) REFERENCES Game
-);
-
-CREATE TABLE Plays (
-	home_TID UUID,
-  away_TID UUID,
-  date DATE,
-  PRIMARY KEY(home_TID, away_TID, date),
-  FOREIGN KEY (home_TID) REFERENCES Team(TID),
-  FOREIGN KEY (away_TID) REFERENCES Team(TID),
-  FOREIGN KEY (date) REFERENCES Game
-);
-
-CREATE TABLE Sponsor (
-	SID UUID PRIMARY KEY,
-  name CHAR(20) NOT NULL
-);
-
-CREATE TABLE Sponsors (
-	SID UUID,
-  date DATE,
-  PRIMARY KEY(SID, date),
-  FOREIGN KEY (SID) REFERENCES Sponsor,
-  FOREIGN KEY (date) REFERENCES Game
-);
-
-CREATE TABLE Ticket (
-	TID UUID PRIMARY KEY,
-  AID UUID NOT NULL,
-  cost MONEY,
-  seat_num INTEGER,
-  FOREIGN KEY (AID) REFERENCES Attendee
+CREATE TABLE PlayersContract (
+	yrs_of_exp INTEGER,
+	status VARCHAR(20),
+	contract MONEY,
+	PRIMARY KEY(yrs_of_exp, status)
 );
 
 CREATE TABLE Attendee (
-	AID UUID PRIMARY KEY,
-  firstname CHAR(20),
-  lastname CHAR(20)
+	aid UUID,
+	firstname VARCHAR(20),
+	lastname VARCHAR(20),
+	email VARCHAR(50),
+ 	PRIMARY KEY(aid)
 );
 
-CREATE TABLE TicketGame (
-  TID UUID,
-  date DATE,
-  PRIMARY KEY(TID, date),
-  FOREIGN KEY (TID) REFERENCES Team,
-  FOREIGN KEY (date) REFERENCES Game
+CREATE TABLE SponsorVenueContribution (
+	contribution MONEY,
+	status VARCHAR(20),
+	PRIMARY KEY(contribution)
+);
+
+CREATE TABLE VenuePostalCode (
+	postalCode VARCHAR(20),
+	city VARCHAR(20),
+	province VARCHAR(20),
+	PRIMARY KEY(postalCode)
+);
+
+CREATE TABLE Sponsor (
+	sid UUID,
+	name VARCHAR(20),
+	PRIMARY KEY(sid)
+);
+
+CREATE TABLE Venue (
+	vid UUID,
+	name VARCHAR(20),
+	capacity INTEGER,
+	postalCode VARCHAR(20),
+	PRIMARY KEY(vid),
+	FOREIGN KEY(postalCode) REFERENCES VenuePostalCode
+);
+
+CREATE TABLE SponsorVenue (
+  vid UUID,
+	sid UUID,
+	contribution MONEY,
+	PRIMARY KEY(sid, vid),
+	FOREIGN KEY(sid) REFERENCES Sponsor,
+	FOREIGN KEY(vid) REFERENCES Venue,
+	FOREIGN KEY(contribution) REFERENCES SponsorVenueContribution
+);
+
+CREATE TABLE Game (
+	gid UUID,
+  vid UUID NOT NULL,
+  home_tid UUID NOT NULL,
+  away_tid UUID NOT NULL,
+  uid UUID NOT NULL,
+	date DATE UNIQUE,
+	start_time TIME,
+	end_time TIME,
+	sport VARCHAR(20),
+	PRIMARY KEY(gid),
+	FOREIGN KEY(vid) REFERENCES Venue,
+  FOREIGN KEY(home_tid) REFERENCES TeamManaged,
+  FOREIGN KEY(away_tid) REFERENCES TeamManaged,
+  FOREIGN KEY(uid) REFERENCES Users
+);
+
+CREATE TABLE Ticket (
+	seat_num INTEGER,
+  gid UUID NOT NULL,
+  aid UUID,
+	price MONEY,
+  status VARCHAR(20),
+	PRIMARY KEY(seat_num, gid),
+	FOREIGN KEY(gid) REFERENCES Game,
+	FOREIGN KEY(aid) REFERENCES Attendee
+);
+
+CREATE TABLE SportsPeople (
+	pid UUID,
+  tid UUID NOT NULL,
+	firstname VARCHAR(20),
+	lastname VARCHAR(20),
+	PRIMARY KEY(pid),
+	FOREIGN KEY(tid) REFERENCES TeamManaged
+);
+
+CREATE TABLE Players (
+	pid UUID,
+  status VARCHAR(20),
+	yrs_of_exp INTEGER,
+	jersey_num INTEGER,
+	position VARCHAR(20),
+	PRIMARY KEY(pid),
+	FOREIGN KEY(pid) REFERENCES SportsPeople,
+  FOREIGN KEY(status, yrs_of_exp) REFERENCES PlayersContract(status, yrs_of_exp)
+);
+
+CREATE TABLE Coach (
+	pid UUID,
+  type VARCHAR(20),
+	specialization VARCHAR(20),
+	PRIMARY KEY(pid),
+	FOREIGN KEY(pid) REFERENCES SportsPeople,
+  FOREIGN KEY(type, specialization) REFERENCES CoachSalary(type, specialization)
 );
 
