@@ -103,7 +103,7 @@ CREATE TABLE Ticket (
 	price MONEY,
   status VARCHAR(20),
 	PRIMARY KEY(seat_num, gid),
-	FOREIGN KEY(gid) REFERENCES Game,
+	FOREIGN KEY(gid) REFERENCES Game ON DELETE CASCADE,
 	FOREIGN KEY(aid) REFERENCES Attendee
 );
 
