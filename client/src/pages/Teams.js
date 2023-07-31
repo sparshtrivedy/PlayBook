@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Button, Offcanvas, Form } from 'react-bootstrap';
+import { Table, Button, Offcanvas, Form, Alert } from 'react-bootstrap';
 import axios from 'axios';
 
 const Teams = () => {
@@ -13,6 +13,13 @@ const Teams = () => {
     const [showAddTeam, setShowAddTeam] = useState(false);
     const [showAddPlayer, setShowAddPlayer] = useState(false);
     const [showEditPlayer, setShowEditPlayer] = useState(false);
+    const [maxAvgCoach, setMaxAvgCoach] = useState([]);
+    const [showCoach, setShowCoach] = useState(false);
+
+    const handleMaxAvgCoachType = async (e) => {
+        fetchMaxAvgCoachType();
+        setShowCoach(true);
+    }
 
     const handleAddTeamClose = () => setShowAddTeam(false);
 
@@ -54,7 +61,7 @@ const Teams = () => {
     const fetchUsers = async () => {
         try {
             const users = await axios.get('http://localhost:5000/users');
-            const managersList = users.data.filter(user => user.role === 1);
+            const managersList = users.data.filter(user => user.role === 'manager');
             setManagers(managersList);
         } catch (error) {
             console.log(error.message);
@@ -63,7 +70,6 @@ const Teams = () => {
 
     const fetchPlayers = async (tid) => {
         setTeam(teams.filter(team => team.tid === tid)[0]);
-
         try {
             const response = await axios.get(`http://localhost:5000/players/${tid}`);
             console.log(response.data)
@@ -122,6 +128,15 @@ const Teams = () => {
         }
     }
 
+    const fetchMaxAvgCoachType = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/max-avg-coach-type');
+            setMaxAvgCoach(response.data);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     useEffect(() => {
         fetchTeams();
         fetchUsers();
@@ -129,6 +144,38 @@ const Teams = () => {
 
     return (
         <>
+            <Alert show={showCoach} variant="success">
+                <Alert.Heading>Result</Alert.Heading>
+                <hr />
+                <p>
+                    The following coach types have a higher average salary than the average of all coach salaries:
+                </p>
+                <Table striped bordered hover responsive>
+                    <thead>
+                        <tr>
+                            <th>Coach Type</th>
+                            <th>Average Salary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {maxAvgCoach.map((coach) => {
+                            return (
+                                <tr key={coach.type}>
+                                    <td>{coach.type}</td>
+                                    <td>${coach.avg_salary}</td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </Table>
+                <hr />
+                <div className="d-flex justify-content-end">
+                    <Button onClick={() => setShowCoach(false)} variant="outline-success">
+                        Close me
+                    </Button>
+                </div>
+            </Alert>
+
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
@@ -145,7 +192,7 @@ const Teams = () => {
                             <tr key={team.tid}>
                                 <td>{team.name}</td>
                                 <td>{team.city}</td>
-                                <td>{team.win_rate}</td>
+                                <td>{team.winrate}</td>
                                 <td>{team.firstname} {team.lastname}</td>
                                 <td>
                                     <Button id={`editteam_${team.tid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
@@ -158,8 +205,9 @@ const Teams = () => {
                 </tbody>
             </Table>
 
-            <Button variant='outline-success' onClick={handleAddTeamShow}>+ Add New Team</Button>
-
+            <Button variant='outline-success' onClick={handleAddTeamShow}>+ Add New Team</Button>{' '}
+            <Button variant='outline-primary' onClick={handleMaxAvgCoachType}>Coach Insights</Button>
+            
             <Offcanvas show={show} placement='end' onHide={handleClose} backdrop="static">
                 <Offcanvas.Header className='bg-warning' closeButton>
                     <Offcanvas.Title>Edit Team</Offcanvas.Title>
@@ -169,17 +217,17 @@ const Teams = () => {
                     <Form >
                         <Form.Group className="mb-3" controlId="formBasicEmail">
                             <Form.Label>Team Name</Form.Label>
-                            <Form.Control defaultValue={team.name} type="text" placeholder="Enter Username"  />
+                            <Form.Control defaultValue={team.name} type="text" placeholder="Enter Team Name"  />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>City</Form.Label>
-                            <Form.Control defaultValue={team.city} type="text" placeholder="Enter First Name" onChange={(e) => setTeam({...team, city: e.target.value})} />
+                            <Form.Control defaultValue={team.city} type="text" placeholder="Enter City" onChange={(e) => setTeam({...team, city: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Win Rate</Form.Label>
-                            <Form.Control defaultValue={team.win_rate} type="text" placeholder="Enter Last Name" onChange={(e) => setTeam({...team, win_rate: e.target.value})} />
+                            <Form.Control defaultValue={team.winrate} type="text" placeholder="Enter Win Rate" onChange={(e) => setTeam({...team, win_rate: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -187,7 +235,7 @@ const Teams = () => {
                             <Form.Select defaultValue={team.uid} onChange={(e) => setTeam({...team, uid: e.target.value})}>
                                 <option>Select Manager</option>
                                 {managers.map(manager => {
-                                    return <option key={manager.uid} value={manager.uid}>{manager.username}</option>
+                                    return <option key={manager.uid} value={manager.uid}>{manager.firstname} {manager.lastname}</option>
                                 })}
                             </Form.Select>
                         </Form.Group>
@@ -221,7 +269,7 @@ const Teams = () => {
                                     <tr key={player.pid}>
                                         <td>{player.firstname}</td>
                                         <td>{player.lastname}</td>
-                                        <td>{player.number}</td>
+                                        <td>{player.jersey_num}</td>
                                         <td>
                                             <Button id={`editplayer_${player.pid}`} variant='warning' size="sm" onClick={handleEditPlayerShow}>Edit</Button>{' '}
                                             <Button id={`deleteplayer_${player.pid}`} variant='danger' size="sm">Delete</Button>{' '}
@@ -252,7 +300,7 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Win Rate</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Last Name" onChange={(e) => setTeam({...team, win_rate: e.target.value})} />
+                            <Form.Control type="text" placeholder="Enter Last Name" onChange={(e) => setTeam({...team, winrate: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -291,7 +339,7 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Jersey Number</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Jersey Number" onChange={(e) => setPlayer({...player, number: e.target.value})} />
+                            <Form.Control type="text" placeholder="Enter Jersey Number" onChange={(e) => setPlayer({...player, jersey_num: e.target.value})} />
                         </Form.Group>
 
                         <Button variant="primary" type="submit">
@@ -320,7 +368,7 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Jersey Number</Form.Label>
-                            <Form.Control type="text" defaultValue={player.number} placeholder="Enter Jersey Number" onChange={(e) => setPlayer({...player, number: e.target.value})} />
+                            <Form.Control type="text" defaultValue={player.jersey_num} placeholder="Enter Jersey Number" onChange={(e) => setPlayer({...player, jersey_num: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">

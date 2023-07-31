@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Button, Offcanvas, Form, Badge } from 'react-bootstrap';
+import { Table, Button, Offcanvas, Form, Badge, Modal, Row, Col } from 'react-bootstrap';
 import axios from 'axios';
 
 const Users = () => {
@@ -7,11 +7,31 @@ const Users = () => {
     const [user, setUser] = useState({});
     const [show, setShow] = useState(false);
     const [showAddUser, setShowAddUser] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [cols, setCols] = useState({
+        firstname: true,
+        lastname: true,
+        email: true,
+        role: true,
+    });
+
+    const handleCloseModal = () => setShowModal(false);
+    const handleShowModal = () => setShowModal(true);
+
+    const handleApplyFilter = async () => {
+        try {
+            fetchUsers();
+            handleCloseModal();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
 
     const handleClose = () => setShow(false);
 
     const handleShow = async (e) => {
         const id = e.target.id.split('_')[1]
+        console.log('hello'+e.target.id)
         setUser(users.filter(user => user.uid === id)[0])
         setShow(true);
     }
@@ -48,7 +68,7 @@ const Users = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/users');
+            const response = await axios.get('http://localhost:5000/users', {params: cols});
             setUsers(response.data);
         } catch (error) {
             console.log(error.message);
@@ -64,11 +84,10 @@ const Users = () => {
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
-                        <th>Username</th>
-                        <th>First Name</th>
-                        <th>Last Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
+                        { users[0] && users[0].firstname && <th>First Name</th> }
+                        { users[0] && users[0].lastname && <th>Last Name</th> }
+                        { users[0] && users[0].email && <th>Email</th> }
+                        { users[0] && users[0].role && <th>Role</th> }
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -76,15 +95,16 @@ const Users = () => {
                     {users.map((user) => {
                         return (
                             <tr key={user.uid}>
-                                <td>{user.username}</td>
-                                <td>{user.firstname}</td>
-                                <td>{user.lastname}</td>
-                                <td>{user.email}</td>
-                                <td>
-                                    {user.role? 
-                                    <Badge bg="success">Manager</Badge>: 
-                                    <Badge bg="primary">Admin</Badge>}
-                                </td>
+                                {user.firstname && <td>{user.firstname}</td>}
+                                {user.lastname && <td>{user.lastname}</td>}
+                                {user.email && <td>{user.email}</td>}
+                                {user.role &&
+                                    <td>
+                                        {user.role === 'manager'? 
+                                        <Badge bg="success">Manager</Badge>: 
+                                        <Badge bg="primary">Admin</Badge>}
+                                    </td>
+                                }
                                 <td>
                                     <Button id={`edituser_${user.uid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
                                     <Button id={`deleteuser_${user.uid}`} variant='danger' size="sm">Delete</Button>
@@ -96,19 +116,47 @@ const Users = () => {
             </Table>
 
             <Button variant='outline-success' onClick={handleAddUserShow}>+ Add New User</Button>
+            <Button variant="success" className="m-3" onClick={handleShowModal}>Filter Columns</Button>
+
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Filter Columns</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                   <Row>
+                        <Col>
+                            <Form.Check checked={cols.firstname} type='checkbox' label='First Name' onChange={(e) => setCols({...cols, firstname: e.target.checked})} />
+                        </Col>
+                        <Col>
+                            <Form.Check checked={cols.lastname} type='checkbox' label='Last Name' onChange={(e) => setCols({...cols, lastname: e.target.checked})} />
+                        </Col>
+                   </Row>
+                   <Row>
+                        <Col>
+                            <Form.Check checked={cols.email} type='checkbox' label='Email' onChange={(e) => setCols({...cols, email: e.target.checked})} />
+                        </Col>
+                        <Col>
+                            <Form.Check checked={cols.role} type='checkbox' label='Role' onChange={(e) => setCols({...cols, role: e.target.checked})} />
+                        </Col>
+                   </Row>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={handleCloseModal}>
+                    Close
+                </Button>
+                <Button variant="primary" onClick={handleApplyFilter}>
+                    Filter
+                </Button>
+                </Modal.Footer>
+            </Modal>
 
             <Offcanvas show={show} placement='end' onHide={handleClose}>
                 <Offcanvas.Header className='bg-warning' closeButton>
                     <Offcanvas.Title>Edit User</Offcanvas.Title>
-                    {user.username}
+                    {user.firstname} {user.lastname}
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form onSubmit={handleSubmit}>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>Username</Form.Label>
-                            <Form.Control defaultValue={user.username} type="text" placeholder="Enter Username" onChange={(e) => setUser({...user, username: e.target.value})} />
-                        </Form.Group>
-
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>First Name</Form.Label>
                             <Form.Control defaultValue={user.firstname} type="text" placeholder="Enter First Name" onChange={(e) => setUser({...user, firstname: e.target.value})} />
@@ -133,8 +181,8 @@ const Users = () => {
                             <Form.Label>Role</Form.Label>
                             <Form.Select defaultValue={user.role} onChange={(e) => setUser({...user, role: e.target.value})}>
                                 <option>Select role</option>
-                                <option value="0">Admin</option>
-                                <option value="1">Manager</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
                             </Form.Select>
                         </Form.Group>
 
@@ -152,11 +200,6 @@ const Users = () => {
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form onSubmit={handleSubmitAddUser}>
-                        <Form.Group className="mb-3" controlId="formBasicEmail">
-                            <Form.Label>Username</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Username" onChange={(e) => setUser({...user, username: e.target.value})} />
-                        </Form.Group>
-
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>First Name</Form.Label>
                             <Form.Control type="text" placeholder="Enter First Name" onChange={(e) => setUser({...user, firstname: e.target.value})} />
@@ -181,8 +224,8 @@ const Users = () => {
                             <Form.Label>Role</Form.Label>
                             <Form.Select onChange={(e) => setUser({...user, role: e.target.value})}>
                                 <option>Select Role</option>
-                                <option value="0">Admin</option>
-                                <option value="1">Manager</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
                             </Form.Select>
                         </Form.Group>
 

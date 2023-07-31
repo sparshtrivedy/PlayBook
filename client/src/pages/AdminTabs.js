@@ -14,7 +14,7 @@ const AdminTabs = () => {
                     <Card>
                         <Card.Header className='bg-info p-3'>
                             <div>
-                                <FaUser className='bg-secondary rounded-circle pt-2' color='lightGray' size={50} />
+                                <FaUser className='bg-light rounded-circle pt-2' color='lightGray' size={50} />
                             </div>
                             <div>
                                 <Card.Title className='m-2'>
@@ -27,12 +27,16 @@ const AdminTabs = () => {
                         </Card.Header>
                         <Card.Body className='p-0'>
                             <Form.Group className="p-2 bg-light border-bottom">
-                                <Form.Label><strong>Username</strong></Form.Label>
-                                <Form.Control type="email" defaultValue={localStorage.getItem('username')} disabled/>
-                            </Form.Group>
-                            <Form.Group className="p-2 bg-light">
                                 <Form.Label><strong>Email</strong></Form.Label>
                                 <Form.Control type="email" defaultValue={localStorage.getItem('email')} disabled/>
+                            </Form.Group>
+                            <Form.Group className="p-2 bg-light">
+                                <Form.Label><strong>First Name</strong></Form.Label>
+                                <Form.Control type="text" defaultValue={localStorage.getItem('firstname')} disabled/>
+                            </Form.Group>
+                            <Form.Group className="p-2 bg-light">
+                                <Form.Label><strong>Last Name</strong></Form.Label>
+                                <Form.Control type="text" defaultValue={localStorage.getItem('lastname')} disabled/>
                             </Form.Group>
                         </Card.Body>
                     </Card>

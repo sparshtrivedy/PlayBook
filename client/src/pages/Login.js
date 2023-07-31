@@ -6,7 +6,7 @@ import { FaLock } from 'react-icons/fa6'
 
 function Login() {
   const navigate = useNavigate()
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showAlert, setShowAlert] = useState(false);
 
@@ -15,16 +15,15 @@ function Login() {
     
     try {
       const response = await axios.post('http://localhost:5000/login', {
-        username: username,
+        email: email,
         password: password
       });
 
-      localStorage.setItem('username', response.data.user.username);
+      localStorage.setItem('email', response.data.user.email);
       localStorage.setItem('firstname', response.data.user.firstname);
       localStorage.setItem('lastname', response.data.user.lastname);
-      localStorage.setItem('email', response.data.user.email);
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('role', response.data.user.role? 'Manager': 'Admin');
+      localStorage.setItem('role', response.data.user.role == 'manager'? 'Manager': 'Admin');
 
       navigate('/dashboard');
     } catch (error) {
@@ -48,13 +47,13 @@ function Login() {
           
         </Card.Header>
         <Alert variant='danger' className='m-3 p-2' show={showAlert}>
-          The username and password combination you have entered is incorrect
+          The email and password combination you have entered is incorrect
         </Alert>
         <Form onSubmit={handleSubmit}>
           <Card.Body>
             <Form.Group className="mb-3">
-              <Form.Label>Username</Form.Label>
-              <Form.Control type="text" placeholder="Enter username" onChange={(e) => setUsername(e.target.value)} />
+              <Form.Label>Email</Form.Label>
+              <Form.Control type="email" placeholder="Enter email" onChange={(e) => setEmail(e.target.value)} />
             </Form.Group>
 
             <Form.Group className="mb-3">

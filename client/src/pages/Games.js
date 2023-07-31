@@ -1,30 +1,78 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Button, Form, Offcanvas } from 'react-bootstrap';
+import { Table, Button, Form, Offcanvas, Modal, Row, Col } from 'react-bootstrap';
+import { FaGreaterThan, FaFilter, FaCalculator } from 'react-icons/fa6'
 import axios from 'axios';
 
 const Games = () => {
     const [games, setGames] = useState([]);
+    const [attendees, setAttendees] = useState([]);
     const [venues, setVenues] = useState([]);
     const [teams, setTeams] = useState([]);
     const [game, setGame] = useState({});
     const [show, setShow] = useState(false);
+    const [admins, setAdmins] = useState([]);
     const [showAddGame, setShowAddGame] = useState(false);
     const [showAttendees, setShowAttendees] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [stats, setStats] = useState([]);
+    const [avg, setAvg] = useState(0);
+    const [lower, setLower] = useState(0);
+    const [upper, setUpper] = useState(0);
+    const [filteredRev, setFilteredRev] = useState([]);
+    const [showRevenueModal, setShowRevenueModal] = useState(false);
+    const [cols, setCols] = useState({
+        date: true,
+        sport: true,
+        home: true,
+        away: true,
+        starts: true,
+        ends: true,
+        venue: true,
+        city: true,
+        capacity: true,
+        admin: true
+    });
+
+    const handleCloseModal = () => setShowModal(false);
+    const handleShowModal = () => setShowModal(true);
+
+    const handleCloseRevenueModal = () => setShowRevenueModal(false);
+
+    const handleShowRevenueModal = async () => {
+        fetchStats();
+        fetchAvg();
+        setShowRevenueModal(true);
+    }
+
+    const handleRevenueFiler = async (e) => {
+        e.preventDefault();
+        fetchFilteredRevenue();
+    }
+
+    const handleApplyFilter = async () => {
+        try {
+            fetchGames();
+            handleCloseModal();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
 
     const handleShow = async (e) => {
-        const date = e.target.id.split('_')[1];
-        setGame(games.filter(game => game.date === date)[0])
+        const gid = e.target.id.split('_')[1];
+        setGame(games.filter(game => game.gid === gid)[0])
         setShow(true);
     }
 
     const handleShowAttendees = async (e) => {
-        const date = e.target.id.split('_')[1];
-        setGame(games.filter(game => game.date === date)[0])
+        const gid = e.target.id.split('_')[1];
+        setGame(games.filter(game => game.gid === gid)[0])
+        fetchAttendees(gid)
         setShowAttendees(true);
     }
 
     const handleAttendeesClose = () => setShowAttendees(false);
-
+    
     const handleAddGameShow = async (e) => {
         setShowAddGame(true);
     }
@@ -37,7 +85,6 @@ const Games = () => {
         event.preventDefault();
         try {
             const response = await axios.put('http://localhost:5000/update-game', game);
-            console.log(response);
             fetchGames();
             handleClose();
         } catch (error) {
@@ -49,7 +96,6 @@ const Games = () => {
         event.preventDefault();
         try {
             const response = await axios.put('http://localhost:5000/add-game', game);
-            console.log(response);
             fetchGames();
             handleAddGameClose();
         } catch (error) {
@@ -59,7 +105,7 @@ const Games = () => {
 
     const fetchGames = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/games');
+            const response = await axios.get('http://localhost:5000/games', {params: cols});
             setGames(response.data);
         } catch (error) {
             console.log(error.message);
@@ -84,10 +130,59 @@ const Games = () => {
         }
     }
 
+    const fetchAttendees = async (gid) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/attendee/${gid}`);
+            console.log(response.data)
+            setAttendees(response.data);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const fetchAdmins = async () => {
+        try {
+            const users = await axios.get('http://localhost:5000/users');
+            const adminsList = users.data.filter(user => user.role === 'admin');
+            setAdmins(adminsList);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const fetchStats = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/stats');
+            setStats(response.data);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const fetchAvg = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/avg-revenue');
+            console.log(response)
+            setAvg(response.data[0]['avg_price']);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const fetchFilteredRevenue = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/filter-revenue/${upper}/${lower}`);
+            setFilteredRev(response.data);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     useEffect(() => {
         fetchGames();
         fetchVenues();
         fetchTeams();
+        fetchAdmins();
     }, []);
 
     return (
@@ -95,35 +190,37 @@ const Games = () => {
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>Sport</th>
-                        <th>Home</th>
-                        <th>Away</th>
-                        <th>Starts</th>
-                        <th>Ends</th>
-                        <th>Venue</th>
-                        <th>City</th>
-                        <th>Capacity</th>
+                        { games[0] && games[0].date && <th>Date</th> }
+                        { games[0] && games[0].sport && <th>Sport</th> }
+                        { games[0] && games[0].home && <th>Home</th> }
+                        { games[0] && games[0].away && <th>Away</th> }
+                        { games[0] && games[0].start_time && <th>Starts</th> }
+                        { games[0] && games[0].end_time && <th>Ends</th> }
+                        { games[0] && games[0].venue && <th>Venue</th> }
+                        { games[0] && games[0].city && <th>City</th> }
+                        { games[0] && games[0].capacity && <th>Capacity</th> }
+                        { games[0] && games[0].uid && <th>Admin</th> }
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {games.map((game) => {
                         return (
-                            <tr key={(game.date).toString().split('T')[0]}>
-                                <td>{game.date}</td>
-                                <td>{game.sport}</td>
-                                <td>{game.home}</td>
-                                <td>{game.away}</td>
-                                <td>{game.start_time}</td>
-                                <td>{game.end_time}</td>
-                                <td>{game.venue}</td>
-                                <td>{game.city}</td>
-                                <td>{game.capacity}</td>
+                            <tr key={game.gid}>
+                                {game.date && <td>{(game.date).toString().split('T')[0]}</td>}
+                                {game.sport && <td>{game.sport}</td>}
+                                {game.home && <td>{game.home}</td>}
+                                {game.away && <td>{game.away}</td>}
+                                {game.start_time && <td>{game.start_time}</td>}
+                                {game.end_time && <td>{game.end_time}</td>}
+                                {game.venue && <td>{game.venue}</td>}
+                                {game.city && <td>{game.city}</td>}
+                                {game.capacity && <td>{game.capacity}</td>}
+                                {game.uid && <td>{game.admin_firstname} {game.admin_lastname}</td>}
                                 <td>
-                                    <Button id={`editgame_${game.date}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
-                                    <Button id={`deletegame_${game.date}`} variant='danger' size="sm">Delete</Button>{' '}
-                                    <Button id={`attendees_${game.date}`} variant='primary' size="sm" onClick={handleShowAttendees}>Attendees</Button>
+                                    <Button id={`editgame_${game.gid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
+                                    <Button id={`deletegame_${game.gid}`} variant='danger' size="sm">Delete</Button>{' '}
+                                    <Button id={`attendees_${game.gid}`} variant='primary' size="sm" onClick={handleShowAttendees}>Attendees</Button>
                                 </td>
                             </tr>
                         )
@@ -132,6 +229,152 @@ const Games = () => {
             </Table>
 
             <Button variant='outline-success' onClick={handleAddGameShow}>+ Add New Game</Button>
+            <Button variant="outline-primary" className="m-3" onClick={handleShowModal}>
+                <span className='d-flex justify-content-center align-items-center'><FaFilter className='mx-2'/>Filter Columns</span>
+            </Button>
+            <Button variant="outline-danger" onClick={handleShowRevenueModal}>
+                 <span className='d-flex justify-content-center align-items-center'><FaCalculator className='mx-2'/>Check Revenue</span>
+            </Button>
+
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        Filter Columns
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Row>
+                        <Col>
+                            <Form.Check checked={cols.date} type='checkbox' label='Date' onChange={(e) => setCols({...cols, date: e.target.checked})} />
+                        </Col>
+                        <Col>
+                            <Form.Check checked={cols.sport} type='checkbox' label='Sport' onChange={(e) => setCols({...cols, sport: e.target.checked})} />
+                        </Col>
+                        <Col>
+                            <Form.Check checked={cols.home} type='checkbox' label='Home' onChange={(e) => setCols({...cols, home: e.target.checked})} />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Form.Check checked={cols.away} type='checkbox' label='Away' onChange={(e) => setCols({...cols, away: e.target.checked})} />
+                        </Col>
+                        <Col>
+                            <Form.Check checked={cols.starts} type='checkbox' label='Starts' onChange={(e) => setCols({...cols, starts: e.target.checked})} />
+                        </Col>
+                        <Col>
+                            <Form.Check checked={cols.ends} type='checkbox' label='Ends' onChange={(e) => setCols({...cols, ends: e.target.checked})} />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Form.Check checked={cols.venue} type='checkbox' label='Venue' onChange={(e) => setCols({...cols, venue: e.target.checked})} />
+                        </Col>
+                        <Col>
+                            <Form.Check checked={cols.city} type='checkbox' label='City' onChange={(e) => setCols({...cols, city: e.target.checked})} />
+                        </Col>
+                        <Col>
+                            <Form.Check checked={cols.capacity} type='checkbox' label='Capacity' onChange={(e) => setCols({...cols, capacity: e.target.checked})} />
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Form.Check checked={cols.admin} type='checkbox' label='Admin' onChange={(e) => setCols({...cols, admin: e.target.checked})} />
+                        </Col>
+                    </Row>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={handleCloseModal}>
+                    Close
+                </Button>
+                <Button variant="primary" onClick={handleApplyFilter}>
+                    Filter
+                </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showRevenueModal} onHide={handleCloseRevenueModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Stats</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Home</th>
+                                <th>Away</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {stats.map((stat) => {
+                                return (
+                                    <tr key={stat.date}>
+                                        <td>{stat.date}</td>
+                                        <td>{stat.home}</td>
+                                        <td>{stat.away}</td>
+                                        <td>{stat.revenue}</td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </Table>
+                    <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
+                        <Col sm="4">
+                            <Form.Label>Average revenue</Form.Label>
+                        </Col>
+                        <Col sm="8">
+                            <Form.Control type="number" value={avg} disabled />
+                        </Col>
+                    </Form.Group>
+                    <Form onSubmit={handleRevenueFiler}>
+                        <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
+                            <Form.Label column sm="1"><FaGreaterThan /></Form.Label>
+                            <Col sm="11">
+                                <Form.Control type="number" placeholder="Lower Limit" onChange={(e) => setUpper(e.target.value)} />
+                            </Col>
+                        </Form.Group>
+
+                        <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Label column sm="1"><FaGreaterThan style = {{transform: 'rotate(180deg)' }} /></Form.Label>
+                            <Col sm="11">
+                                <Form.Control type="number" placeholder="Upper Limit" onChange={(e) => setLower(e.target.value)} />
+                            </Col>
+                        </Form.Group>
+                        <Button variant="primary" type="submit" className='mb-3' >
+                            Apply
+                        </Button>
+                    </Form>
+
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Home</th>
+                                <th>Away</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filteredRev.map((rev) => {
+                                return (
+                                    <tr key={rev.date}>
+                                        <td>{rev.date}</td>
+                                        <td>{rev.home}</td>
+                                        <td>{rev.away}</td>
+                                        <td>{rev.revenue}</td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </Table>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button variant="secondary" onClick={handleCloseModal}>
+                    Close
+                </Button>
+                </Modal.Footer>
+            </Modal>
 
             <Offcanvas show={show} placement='end' onHide={handleClose}>
                 <Offcanvas.Header className='bg-warning' closeButton>
@@ -185,6 +428,16 @@ const Games = () => {
                                 <option>Select Away Team</option>
                                 {teams.map(team => {
                                     return <option key={team.tid} value={team.tid}>{team.name}</option>
+                                })}
+                            </Form.Select>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Admin</Form.Label>
+                            <Form.Select defaultValue={game.uid} onChange={(e) => setGame({...game, uid: e.target.value})}>
+                                <option>Select Admin</option>
+                                {admins.map(admin => {
+                                    return <option key={admin.uid} value={admin.uid}>{admin.firstname} {admin.lastname}</option>
                                 })}
                             </Form.Select>
                         </Form.Group>
@@ -252,6 +505,16 @@ const Games = () => {
                             </Form.Select>
                         </Form.Group>
 
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Admin</Form.Label>
+                            <Form.Select onChange={(e) => setGame({...game, uid: e.target.value})}>
+                                <option>Select Admin</option>
+                                {admins.map(admin => {
+                                    return <option key={admin.uid} value={admin.uid}>{admin.firstname} {admin.lastname}</option>
+                                })}
+                            </Form.Select>
+                        </Form.Group>
+
                         <Button variant="primary" type="submit">
                             Save
                         </Button>
@@ -262,7 +525,7 @@ const Games = () => {
             <Offcanvas show={showAttendees} placement='bottom' onHide={handleAttendeesClose}>
                 <Offcanvas.Header className='bg-primary' closeButton>
                     <Offcanvas.Title className='text-light'>Attendees</Offcanvas.Title>
-                    <div className='text-light'>{game.date}</div>
+                    <div className='text-light'>{game.home} v/s {game.away}</div>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Table striped bordered hover responsive>
@@ -270,19 +533,25 @@ const Games = () => {
                             <tr>
                                 <th>First Name</th>
                                 <th>Last Name</th>
+                                <th>Email</th>
                                 <th>Seat Number</th>
-                                <th>Cost</th>
+                                <th>Paid</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {/* {sponsors.map((sponsor) => {
+                            {attendees.map((atendee) => {
                                 return (
-                                    <tr key={sponsor.sid}>
-                                        <td>{sponsor.name}</td>
-                                        <td>{sponsor.contribution}</td>
+                                    <tr key={atendee.aid}>
+                                        <td>{atendee.firstname}</td>
+                                        <td>{atendee.lastname}</td>
+                                        <td>{atendee.email}</td>
+                                        <td>{atendee.seat_num}</td>
+                                        <td>{atendee.price}</td>
+                                        <td>{atendee.status}</td>
                                     </tr>
                                 )
-                            })} */}
+                            })}
                         </tbody>
                     </Table>
                 </Offcanvas.Body>

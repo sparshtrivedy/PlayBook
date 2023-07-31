@@ -29,10 +29,9 @@ app.use(
 );
 
 app.post('/login', async (req, res) => {
-    const { username, password} = req.body;
+    const { email, password} = req.body;
 
-    // Replace this with your actual user authentication logic
-    const result = await pool.query("SELECT * FROM Users WHERE username = $1 AND password = $2", [username, password]);
+    const result = await pool.query("SELECT * FROM Users WHERE email = $1 AND password = $2", [email, password]);
     const user = result.rows[0]
 
     if (user) {
@@ -61,7 +60,17 @@ const authenticateJWT = (req, res, next) => {
 };
 
 app.get('/users', (req, res) => {
-  pool.query('SELECT * FROM Users', (err, result) => {
+  const { firstname, lastname, email, role } = req.query;
+
+  const selectedColumns = ['uid', 'password'];
+  if (firstname === 'true') selectedColumns.push('firstname');
+  if (lastname === 'true') selectedColumns.push('lastname');
+  if (email === 'true') selectedColumns.push('email');
+  if (role === 'true') selectedColumns.push('role');
+
+  const selectedColumnsString = selectedColumns.join(', ');
+
+  pool.query(`SELECT ${selectedColumnsString} FROM Users`, (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -72,7 +81,101 @@ app.get('/users', (req, res) => {
 });
 
 app.get('/teams', (req, res) => {
-  pool.query('SELECT Team.*, Users.username, Users.firstname, Users.lastname FROM Team JOIN Users ON Team.UID=Users.UID', (err, result) => {
+  const query = `
+    SELECT TeamManaged.*, Users.email, Users.firstname, Users.lastname 
+    FROM TeamManaged 
+    JOIN Users ON TeamManaged.uid=Users.uid
+  `;
+  pool.query(query, (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving teams');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.get('/max-avg-coach-type', (req, res) => {
+  const query = `
+    SELECT c.type, AVG(salary::numeric) AS avg_salary
+    FROM Coach c
+    JOIN CoachSalary ON c.type = CoachSalary.type AND c.specialization = CoachSalary.specialization
+    GROUP BY c.type
+    HAVING AVG(salary::numeric) > (
+        SELECT AVG(salary::numeric)
+        FROM CoachSalary
+    )
+  `;
+
+  pool.query(query, (err, result) => {
+    if (err) {
+      console.error('Error executing query', err);
+      res.status(500).send('Error retrieving coach');
+    } else {
+      res.json(result.rows);
+    }
+  });
+})
+
+app.get('/stats', (req, res) => {
+  const query = `
+    SELECT CAST(g.date AS VARCHAR(20)), t1.name as home, t2.name as away, SUM(price) as revenue
+    FROM Game g
+    JOIN Ticket t ON g.gid = t.gid
+    JOIN Attendee a ON a.aid = t.aid
+    JOIN TeamManaged t1 ON t1.tid = g.home_tid
+    JOIN TeamManaged t2 ON t2.tid = g.away_tid
+    GROUP BY g.gid, t1.name, t2.name
+  `;
+
+  pool.query(query, (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving stats');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.get('/avg-revenue', (req, res) => {
+  const query = `
+    SELECT AVG(revenue::numeric) AS avg_price
+    FROM (
+      SELECT g.gid, SUM(price) as revenue
+      FROM Game g
+      JOIN Ticket t ON g.gid = t.gid
+      GROUP BY g.gid
+    ) AS customer_counts;
+  `;
+
+  pool.query(query, (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving stats');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.get('/filter-revenue/:greater/:lower', (req, res) => {
+  const greater = req.params['greater'];
+  const lower = req.params['lower'];
+
+  const query = `
+    SELECT CAST(g.date AS VARCHAR(20)), t1.name as home, t2.name as away, SUM(price) as revenue
+    FROM Game g
+    JOIN Ticket t ON g.gid = t.gid
+    JOIN Attendee a ON a.aid = t.aid
+    JOIN TeamManaged t1 ON t1.tid = g.home_tid
+    JOIN TeamManaged t2 ON t2.tid = g.away_tid
+    GROUP BY g.gid, t1.name, t2.name
+    HAVING SUM(price)>'$${greater}' AND SUM(price)<'$${lower}'
+  `;
+
+  pool.query(query, (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -83,7 +186,12 @@ app.get('/teams', (req, res) => {
 });
 
 app.get('/venues', (req, res) => {
-  pool.query('SELECT * FROM Venue', (err, result) => {
+  const query = `
+    SELECT v.*, vpc.City 
+    FROM Venue v 
+    JOIN VenuePostalCode vpc ON v.postalcode = vpc.postalcode
+  `
+  pool.query(query, (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -120,20 +228,58 @@ app.post('/add-venue', (req, res) => {
   });
 });
 
-app.get('/games', (req, res) => {
-  pool.query('SELECT CAST(g.date AS CHAR(10)), g.sport, g.start_time, g.end_time, v.name as venue, v.vid, v.city, v.capacity, t.name as home, t.tid as home_tid, t1.name as away, t1.tid as away_tid FROM Game g JOIN Venue v ON g.vid=v.vid JOIN Plays p ON g.date=p.date JOIN Team t ON t.tid=p.home_tid JOIN Team t1 ON t1.tid=p.away_tid', (err, result) => {
-      if (err) {
-        console.error('Error executing query', err);
-        res.status(500).send('Error retrieving users');
-      } else {
-        res.json(result.rows);
-      }
-  });
+app.get('/games', async (req, res) => {
+  const {
+    date, sport, home, away, starts, ends, venue, city, capacity, admin
+  } = req.query;
+
+  const selectedColumns = [];
+  if (date === 'true') selectedColumns.push('CAST(g.date AS VARCHAR(20))');
+  if (sport === 'true') selectedColumns.push('g.sport');
+  if (home === 'true') selectedColumns.push('t1.name AS home');
+  if (away === 'true') selectedColumns.push('t2.name AS away');
+  if (starts === 'true') selectedColumns.push('g.start_time');
+  if (ends === 'true') selectedColumns.push('g.end_time');
+  if (venue === 'true') selectedColumns.push('v.name AS venue');
+  if (city === 'true') selectedColumns.push('vpc.city');
+  if (capacity === 'true') selectedColumns.push('v.capacity');
+  if (admin === 'true') {
+    selectedColumns.push('u.firstname AS admin_firstname');
+    selectedColumns.push('u.lastname AS admin_lastname');
+  }
+
+  const selectedColumnsString = selectedColumns.join(', ');
+
+  const query = `
+    SELECT ${selectedColumnsString}, g.gid, g.vid, g.home_tid, g.away_tid, g.uid
+    FROM Game g 
+    JOIN TeamManaged t1 ON g.home_tid = t1.tid 
+    JOIN TeamManaged t2 ON g.away_tid = t2.tid 
+    JOIN Venue v ON g.vid = v.vid 
+    JOIN VenuePostalCode vpc ON v.postalcode = vpc.postalcode 
+    JOIN Users u ON g.uid = u.uid
+  `;
+
+  try {
+    const result = await pool.query(query)
+    res.json(result.rows)
+  } catch (error) {
+    console.error('Error executing queries', error);
+    res.status(500).send('Error retrieving from database');
+  }
 });
 
-app.get('/games/:date', (req, res) => {
-  const date = req.params['date'];
-  pool.query('SELECT CAST(g.date AS CHAR(10)), g.sport, g.start_time, g.end_time, v.name as venue, v.city, v.capacity, t.name as home, t1.name as away FROM Game g JOIN Venue v ON g.vid=v.vid JOIN Plays p ON g.date=p.date JOIN Team t ON t.tid=p.home_tid JOIN Team t1 ON t1.tid=p.away_tid WHERE g.date = $1', [date], (err, result) => {
+app.get('/attendee/:gid', (req, res) => {
+  const gid = req.params['gid'];
+
+  const query = `
+    SELECT a.*, t.* 
+    FROM Game g
+    JOIN Ticket t ON g.gid = t.gid
+    JOIN Attendee a ON a.aid = t.aid
+    WHERE g.gid = $1
+  `
+  pool.query(query, [gid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -180,7 +326,7 @@ app.put('/add-game', async (req, res) => {
 app.get('/players/:tid', (req, res) => {
   const tid = req.params['tid'];
 
-  pool.query('SELECT * FROM Player WHERE TID = $1', [tid], (err, result) => {
+  pool.query('SELECT sp.*, p.jersey_num FROM SportsPeople sp LEFT JOIN Players p ON sp.pid = p.pid WHERE tid = $1', [tid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
@@ -221,7 +367,7 @@ app.post('/add-player/:tid', (req, res) => {
 app.put('/update-player/:pid', (req, res) => {
   const pid = req.params['pid'];
   const {firstname, lastname, number, tid} = req.body;
-  console.log(req.body)
+
   pool.query('UPDATE Player SET firstname = $1, lastname = $2, number = $3, TID = $4 WHERE PID = $5', [firstname, lastname, number, tid, pid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
@@ -248,8 +394,6 @@ app.post('/add-team', (req, res) => {
   const tid = uuidv4(); 
   const { uid, city, name, win_rate } = req.body;
   
-  console.log(tid)
-
   pool.query("INSERT INTO Team VALUES ($1, $2, $3, $4, $5)", [tid, uid, city, name, win_rate], (error, results) => {
     if (error) {
       throw error;
