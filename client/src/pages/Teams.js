@@ -227,7 +227,7 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Win Rate</Form.Label>
-                            <Form.Control defaultValue={team.winrate} type="text" placeholder="Enter Win Rate" onChange={(e) => setTeam({...team, win_rate: e.target.value})} />
+                            <Form.Control defaultValue={team.winrate} type="text" placeholder="Enter Win Rate" onChange={(e) => setTeam({...team, winrate: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">

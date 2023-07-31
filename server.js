@@ -80,6 +80,107 @@ app.get('/users', (req, res) => {
   });
 });
 
+app.get('/custom', async (req, res) => {
+  const {query, table, cols} = req.query;
+  const selectedColumns = [];
+
+  if (table === 'users') {
+    const {firstname, lastname, email, role} = query['users'];
+
+    if (cols['users']['firstname'] === 'true') selectedColumns.push('firstname');
+    if (cols['users']['lastname'] === 'true') selectedColumns.push('lastname');
+    if (cols['users']['email'] === 'true') selectedColumns.push('email');
+    if (cols['users']['role'] === 'true') selectedColumns.push('role');
+
+    const selectedColumnsString = selectedColumns.join(', ');
+
+    const qry = `
+      SELECT ${selectedColumnsString}
+      FROM Users
+      WHERE firstname LIKE $1 AND lastname LIKE $2 AND email LIKE $3 AND role LIKE $4
+    `;
+
+    try {
+      const result = await pool.query(qry, [`%${firstname}%`, `%${lastname}%`, `%${email}%`, `%${role}%`])
+      res.json(result.rows)
+    } catch (error) {
+      console.error('Error executing queries', error);
+      res.status(500).send('Error retrieving from database');
+    }
+  } else if (table === 'sponsor') {
+    const {name, contribution, venue, status} = query['sponsor'];
+
+    if (cols['sponsor']['name'] === 'true') selectedColumns.push('s.name');
+    if (cols['sponsor']['contribution'] === 'true') selectedColumns.push('svc.contribution');
+    if (cols['sponsor']['venue'] === 'true') selectedColumns.push('v.name as venue');
+    if (cols['sponsor']['status'] === 'true') selectedColumns.push('status');
+
+    const selectedColumnsString = selectedColumns.join(', ');
+
+    const qry = `
+      SELECT ${selectedColumnsString}
+      FROM SponsorVenue sv
+      JOIN Sponsor s on s.sid = sv.sid
+      JOIN Venue v on v.vid = sv.vid
+      JOIN SponsorVenueContribution svc on (sv.contribution::numeric) = (svc.contribution::numeric)
+      WHERE s.name LIKE $1 AND (svc.contribution::numeric) >= $2 AND v.name LIKE $3 AND status LIKE $4
+    `;
+
+    try {
+      const result = await pool.query(qry, [`%${name}%`, contribution, `%${venue}%`, `%${status}%`])
+      res.json(result.rows)
+    } catch (error) {
+      console.error('Error executing queries', error);
+      res.status(500).send('Error retrieving from database');
+    }
+  } else if (table === 'game') {
+    const {date, start_time, end_time, sport} = query['game'];
+
+    if (cols['game']['date'] === 'true') selectedColumns.push('CAST(date AS VARCHAR(20))');
+    if (cols['game']['start_time'] === 'true') selectedColumns.push('start_time');
+    if (cols['game']['end_time'] === 'true') selectedColumns.push('end_time');
+    if (cols['game']['sport'] === 'true') selectedColumns.push('sport');
+
+    const selectedColumnsString = selectedColumns.join(', ');
+
+    const qry = `
+      SELECT ${selectedColumnsString}
+      FROM Game
+      WHERE date=$1 AND start_time=$2 AND end_time=$3 AND sport LIKE $4
+    `;
+
+    try {
+      const result = await pool.query(qry, [date, start_time, end_time, `%${sport}%`])
+      res.json(result.rows)
+    } catch (error) {
+      console.error('Error executing queries', error);
+      res.status(500).send('Error retrieving from database');
+    }
+  } else if (table === 'teammanaged') {
+    const {name, winrate, city} = query['teammanaged'];
+
+    if (cols['teammanaged']['name'] === 'true') selectedColumns.push('name');
+    if (cols['teammanaged']['winrate'] === 'true') selectedColumns.push('winrate');
+    if (cols['teammanaged']['city'] === 'true') selectedColumns.push('city');
+
+    const selectedColumnsString = selectedColumns.join(', ');
+
+    const qry = `
+      SELECT ${selectedColumnsString}
+      FROM TeamManaged
+      WHERE name LIKE $1 AND winrate=$2 AND city LIKE $3
+    `;
+
+    try {
+      const result = await pool.query(qry, [`%${name}%`, winrate, `%${city}%`])
+      res.json(result.rows)
+    } catch (error) {
+      console.error('Error executing queries', error);
+      res.status(500).send('Error retrieving from database');
+    }
+  }
+});
+
 app.get('/teams', (req, res) => {
   const query = `
     SELECT TeamManaged.*, Users.email, Users.firstname, Users.lastname 
@@ -392,9 +493,9 @@ app.post('/add-user', (req, res) => {
 
 app.post('/add-team', (req, res) => {
   const tid = uuidv4(); 
-  const { uid, city, name, win_rate } = req.body;
+  const { uid, city, name, winrate } = req.body;
   
-  pool.query("INSERT INTO Team VALUES ($1, $2, $3, $4, $5)", [tid, uid, city, name, win_rate], (error, results) => {
+  pool.query("INSERT INTO Team VALUES ($1, $2, $3, $4, $5)", [tid, uid, city, name, winrate], (error, results) => {
     if (error) {
       throw error;
     }
