@@ -331,14 +331,14 @@ const Games = () => {
                         <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
                             <Form.Label column sm="1"><FaGreaterThan /></Form.Label>
                             <Col sm="11">
-                                <Form.Control type="number" placeholder="Lower Limit" onChange={(e) => setUpper(e.target.value)} />
+                                <Form.Control type="number" placeholder="Lower Revenue Limit" onChange={(e) => setUpper(e.target.value)} />
                             </Col>
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
                             <Form.Label column sm="1"><FaGreaterThan style = {{transform: 'rotate(180deg)' }} /></Form.Label>
                             <Col sm="11">
-                                <Form.Control type="number" placeholder="Upper Limit" onChange={(e) => setLower(e.target.value)} />
+                                <Form.Control type="number" placeholder="Upper Revenue Limit" onChange={(e) => setLower(e.target.value)} />
                             </Col>
                         </Form.Group>
                         <Button variant="primary" type="submit" className='mb-3' >

@@ -4,7 +4,8 @@ import Users from './Users';
 import Teams from './Teams';
 import Games from './Games';
 import Venues from './Venues';
-import { FaUser, FaPeopleGroup, FaBasketball, FaBuilding } from 'react-icons/fa6'
+import Custom from './Custom';
+import { FaUser, FaPeopleGroup, FaBasketball, FaBuilding, FaHandPointer } from 'react-icons/fa6'
 
 const AdminTabs = () => {
     return (
@@ -60,6 +61,9 @@ const AdminTabs = () => {
                     </Tab>
                     <Tab eventKey="venues" title={<span className='d-flex justify-content-center align-items-center'><FaBuilding className='mx-2'/>Venues</span>}>
                         <Venues />
+                    </Tab>
+                    <Tab eventKey="custom" title={<span className='d-flex justify-content-center align-items-center'><FaHandPointer className='mx-2'/>Custom</span>}>
+                        <Custom />
                     </Tab>
                 </Tabs>
             </Col>
