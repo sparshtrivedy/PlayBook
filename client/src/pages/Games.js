@@ -161,7 +161,12 @@ const Games = () => {
 
     const fetchAdmins = async () => {
         try {
-            const users = await axios.get('http://localhost:5000/users');
+            const users = await axios.get('http://localhost:5000/users', {params: {
+                firstname: true,
+                lastname: true,
+                email: true,
+                role: true}
+            });
             const adminsList = users.data.filter(user => user.role === 'admin');
             setAdmins(adminsList);
         } catch (error) {

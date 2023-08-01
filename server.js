@@ -431,16 +431,11 @@ app.get('/attendee/:gid', (req, res) => {
 });
 
 app.put('/update-game', async (req, res) => {
-  const { date, sport, start_time, end_time, vid, home_tid, away_tid} = req.body;
+  const { gid, sport, start_time, end_time, vid, home_tid, away_tid, uid} = req.body;
 
   try {
-    // First SQL statement
-    const updateGameResult = await pool.query('UPDATE Game SET sport=$1, start_time=$2, end_time=$3, vid=$4 WHERE date=$5', [sport, start_time, end_time, vid, date]);
-  
-    // Second SQL statement
-    const updatePlaysResult = await pool.query('UPDATE Plays SET home_tid=$2, away_tid=$3 WHERE date=$1', [date, home_tid, away_tid]);
-  
-    res.json({ gameResult: updateGameResult.rows, playsResult: updatePlaysResult.rows });
+    const updateGameResult = await pool.query('UPDATE Game SET sport=$1, start_time=$2, end_time=$3, home_tid=$4, away_tid=$5, vid=$6, uid=$8 WHERE gid=$7', [sport, start_time, end_time, home_tid, away_tid, vid, gid, uid]);  
+    res.json(updateGameResult.rows);
   } catch (err) {
     console.error('Error executing queries', err);
     res.status(500).send('Error updating database');

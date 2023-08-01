@@ -60,10 +60,12 @@ const Teams = () => {
 
     const fetchUsers = async () => {
         try {
-            const users = await axios.get('http://localhost:5000/users', {params: {firstname: true,
-            lastname: true,
-            email: true,
-            role: true,}});
+            const users = await axios.get('http://localhost:5000/users', {params: {
+                firstname: true,
+                lastname: true,
+                email: true,
+                role: true}
+            });
             const managersList = users.data.filter(user => user.role === 'manager');
             setManagers(managersList);
         } catch (error) {
