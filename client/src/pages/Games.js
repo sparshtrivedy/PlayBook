@@ -84,7 +84,7 @@ const Games = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5000/update-game', game);
+            const response = await axios.put('http://localhost:5001/update-game', game);
             fetchGames();
             handleClose();
         } catch (error) {
@@ -95,7 +95,7 @@ const Games = () => {
     const handleAddGameSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5000/add-game', game);
+            const response = await axios.put('http://localhost:5001/add-game', game);
             fetchGames();
             handleAddGameClose();
         } catch (error) {
@@ -105,7 +105,7 @@ const Games = () => {
 
     const fetchGames = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/games', {params: cols});
+            const response = await axios.get('http://localhost:5001/games', {params: cols});
             setGames(response.data);
         } catch (error) {
             console.log(error.message);
@@ -114,7 +114,7 @@ const Games = () => {
 
     const fetchVenues = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/venues');
+            const response = await axios.get('http://localhost:5001/venues');
             setVenues(response.data);
         } catch (error) {
             console.log(error.message);
@@ -123,7 +123,7 @@ const Games = () => {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/teams');
+            const response = await axios.get('http://localhost:5001/teams');
             setTeams(response.data);
         } catch (error) {
             console.log(error.message);
@@ -132,7 +132,7 @@ const Games = () => {
 
     const fetchAttendees = async (gid) => {
         try {
-            const response = await axios.get(`http://localhost:5000/attendee/${gid}`);
+            const response = await axios.get(`http://localhost:5001/attendee/${gid}`);
             console.log(response.data)
             setAttendees(response.data);
         } catch (error) {
@@ -142,7 +142,7 @@ const Games = () => {
 
     const fetchAdmins = async () => {
         try {
-            const users = await axios.get('http://localhost:5000/users');
+            const users = await axios.get('http://localhost:5001/users');
             const adminsList = users.data.filter(user => user.role === 'admin');
             setAdmins(adminsList);
         } catch (error) {
@@ -152,7 +152,7 @@ const Games = () => {
 
     const fetchStats = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/stats');
+            const response = await axios.get('http://localhost:5001/stats');
             setStats(response.data);
         } catch (error) {
             console.log(error.message);
@@ -161,7 +161,7 @@ const Games = () => {
 
     const fetchAvg = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/avg-revenue');
+            const response = await axios.get('http://localhost:5001/avg-revenue');
             console.log(response)
             setAvg(response.data[0]['avg_price']);
         } catch (error) {
@@ -171,7 +171,7 @@ const Games = () => {
 
     const fetchFilteredRevenue = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/filter-revenue/${upper}/${lower}`);
+            const response = await axios.get(`http://localhost:5001/filter-revenue/${upper}/${lower}`);
             setFilteredRev(response.data);
         } catch (error) {
             console.log(error.message);

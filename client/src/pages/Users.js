@@ -45,7 +45,7 @@ const Users = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5000/update-user', user);
+            const response = await axios.put('http://localhost:5001/update-user', user);
             console.log(response);
             fetchUsers();
             handleClose();
@@ -57,7 +57,7 @@ const Users = () => {
     const handleSubmitAddUser = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/add-user', user);
+            const response = await axios.post('http://localhost:5001/add-user', user);
             console.log(response);
             fetchUsers();
             handleAddUserClose();
@@ -68,7 +68,7 @@ const Users = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/users', {params: cols});
+            const response = await axios.get('http://localhost:5001/users', {params: cols});
             setUsers(response.data);
         } catch (error) {
             console.log(error.message);

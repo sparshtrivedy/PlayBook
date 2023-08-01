@@ -30,8 +30,9 @@ app.use(
 
 app.post('/login', async (req, res) => {
     const { email, password} = req.body;
-
+    console.log(email, password)
     const result = await pool.query("SELECT * FROM Users WHERE email = $1 AND password = $2", [email, password]);
+    console.log(result)
     const user = result.rows[0]
 
     if (user) {
@@ -79,7 +80,7 @@ app.get('/users', (req, res) => {
       }
   });
 });
-
+//fix post query
 app.get('/teams', (req, res) => {
   const query = `
     SELECT TeamManaged.*, Users.email, Users.firstname, Users.lastname 
