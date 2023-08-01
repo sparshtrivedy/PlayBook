@@ -80,6 +80,19 @@ app.get('/users', (req, res) => {
   });
 });
 
+app.get('/filtered-roles/:filterRole', (req, res) => {
+  const filterRole = req.params['filterRole'];
+
+  pool.query(`SELECT * FROM Users WHERE role=$1`, [filterRole], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
 app.get('/custom', async (req, res) => {
   const {query, table, cols} = req.query;
   const selectedColumns = [];
@@ -368,6 +381,33 @@ app.get('/games', async (req, res) => {
     console.error('Error executing queries', error);
     res.status(500).send('Error retrieving from database');
   }
+});
+
+app.get('/filtered-games/:after/:before', async (req, res) => {
+  const after = req.params['after'];
+  const before = req.params['before'];
+
+  console.log(after)
+  console.log(before)
+  const query = `
+    SELECT CAST(g.date AS VARCHAR(20)), g.sport, t1.name AS home, t2.name AS away, g.start_time, g.end_time, v.name AS venue, vpc.city, v.capacity, u.firstname AS admin_firstname, u.lastname AS admin_lastname, g.gid, g.vid, g.home_tid, g.away_tid, g.uid
+    FROM Game g 
+    JOIN TeamManaged t1 ON g.home_tid = t1.tid 
+    JOIN TeamManaged t2 ON g.away_tid = t2.tid 
+    JOIN Venue v ON g.vid = v.vid 
+    JOIN VenuePostalCode vpc ON v.postalcode = vpc.postalcode 
+    JOIN Users u ON g.uid = u.uid
+    WHERE g.date > $1 AND g.date < $2
+  `;
+
+  pool.query(query, [after, before], (err, result) => {
+    if (err) {
+      console.error('Error executing query', err);
+      res.status(500).send('Error retrieving games');
+    } else {
+      res.json(result.rows);
+    }
+  });
 });
 
 app.get('/attendee/:gid', (req, res) => {
