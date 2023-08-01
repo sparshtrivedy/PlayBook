@@ -181,6 +181,7 @@ const Venues = () => {
                             <tr>
                                 <th>Sponsor</th>
                                 <th>Contribution</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -189,6 +190,7 @@ const Venues = () => {
                                     <tr key={sponsor.sid}>
                                         <td>{sponsor.name}</td>
                                         <td>{sponsor.contribution}</td>
+                                        <td>{sponsor.status}</td>
                                     </tr>
                                 )
                             })}

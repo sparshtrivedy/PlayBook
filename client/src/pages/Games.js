@@ -20,6 +20,8 @@ const Games = () => {
     const [upper, setUpper] = useState(0);
     const [filteredRev, setFilteredRev] = useState([]);
     const [showRevenueModal, setShowRevenueModal] = useState(false);
+    const [after, setAfter] = useState('');
+    const [before, setBefore] = useState('');
     const [cols, setCols] = useState({
         date: true,
         sport: true,
@@ -53,6 +55,23 @@ const Games = () => {
         try {
             fetchGames();
             handleCloseModal();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const handleDateFilter = async () => {
+        try {
+            fetchFilteredGames();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const fetchFilteredGames = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/filtered-games/${after}/${before}`);
+            setGames(response.data);
         } catch (error) {
             console.log(error.message);
         }
@@ -105,7 +124,7 @@ const Games = () => {
 
     const fetchGames = async () => {
         try {
-            const response = await axios.get('http://localhost:5001/games', {params: cols});
+            const response = await axios.get(`http://localhost:5000/games`, {params: cols});
             setGames(response.data);
         } catch (error) {
             console.log(error.message);
@@ -142,7 +161,12 @@ const Games = () => {
 
     const fetchAdmins = async () => {
         try {
-            const users = await axios.get('http://localhost:5001/users');
+            const users = await axios.get('http://localhost:5000/users', {params: {
+                firstname: true,
+                lastname: true,
+                email: true,
+                role: true}
+            });
             const adminsList = users.data.filter(user => user.role === 'admin');
             setAdmins(adminsList);
         } catch (error) {
@@ -187,6 +211,23 @@ const Games = () => {
 
     return (
         <>
+            <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
+                <Form.Label column sm="2">
+                    After
+                </Form.Label>
+                <Col sm="3">
+                    <Form.Control type='date' onChange={(e) => setAfter(e.target.value)} />
+                </Col>
+                <Form.Label column sm="2">
+                    Before
+                </Form.Label>
+                <Col sm="3">
+                    <Form.Control type='date' onChange={(e) => setBefore(e.target.value)} />
+                </Col>
+                <Col sm="2" onClick={handleDateFilter}>
+                    <Button variant="primary">Apply filter</Button>
+                </Col>
+            </Form.Group>
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>

@@ -14,9 +14,18 @@ const Users = () => {
         email: true,
         role: true,
     });
+    const [filterRole, setFilterRole] = useState('');
 
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
+
+    const handleApplyRoleFilter = async () => {
+        try {
+            fetchFilteredRoles();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
 
     const handleApplyFilter = async () => {
         try {
@@ -75,12 +84,36 @@ const Users = () => {
         }
     }
 
+    const fetchFilteredRoles = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/filtered-roles/${filterRole}`);
+            setUsers(response.data);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     useEffect(() => {
         fetchUsers();
     }, [])
 
     return (
         <>
+            <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
+                <Form.Label column sm="2">
+                    Find All
+                </Form.Label>
+                <Col sm="8">
+                    <Form.Select onChange={(e) => setFilterRole(e.target.value)} aria-label="Default select example">
+                        <option>Select role</option>
+                        <option value="admin">Admins</option>
+                        <option value="manager">Managers</option>
+                    </Form.Select>
+                </Col>
+                <Col sm="2" onClick={handleApplyRoleFilter}>
+                    <Button variant="primary">Apply filter</Button>
+                </Col>
+            </Form.Group>
             <Table striped bordered hover responsive>
                 <thead>
                     <tr>

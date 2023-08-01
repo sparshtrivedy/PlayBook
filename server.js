@@ -80,7 +80,121 @@ app.get('/users', (req, res) => {
       }
   });
 });
-//fix post query
+
+app.get('/filtered-roles/:filterRole', (req, res) => {
+  const filterRole = req.params['filterRole'];
+
+  pool.query(`SELECT * FROM Users WHERE role=$1`, [filterRole], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving users');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+app.get('/custom', async (req, res) => {
+  const {query, table, cols} = req.query;
+  const selectedColumns = [];
+
+  if (table === 'users') {
+    const {firstname, lastname, email, role} = query['users'];
+
+    if (cols['users']['firstname'] === 'true') selectedColumns.push('firstname');
+    if (cols['users']['lastname'] === 'true') selectedColumns.push('lastname');
+    if (cols['users']['email'] === 'true') selectedColumns.push('email');
+    if (cols['users']['role'] === 'true') selectedColumns.push('role');
+
+    const selectedColumnsString = selectedColumns.join(', ');
+
+    const qry = `
+      SELECT ${selectedColumnsString}
+      FROM Users
+      WHERE firstname LIKE $1 AND lastname LIKE $2 AND email LIKE $3 AND role LIKE $4
+    `;
+
+    try {
+      const result = await pool.query(qry, [`%${firstname}%`, `%${lastname}%`, `%${email}%`, `%${role}%`])
+      res.json(result.rows)
+    } catch (error) {
+      console.error('Error executing queries', error);
+      res.status(500).send('Error retrieving from database');
+    }
+  } else if (table === 'sponsor') {
+    const {name, contribution, venue, status} = query['sponsor'];
+
+    if (cols['sponsor']['name'] === 'true') selectedColumns.push('s.name');
+    if (cols['sponsor']['contribution'] === 'true') selectedColumns.push('svc.contribution');
+    if (cols['sponsor']['venue'] === 'true') selectedColumns.push('v.name as venue');
+    if (cols['sponsor']['status'] === 'true') selectedColumns.push('status');
+
+    const selectedColumnsString = selectedColumns.join(', ');
+
+    const qry = `
+      SELECT ${selectedColumnsString}
+      FROM SponsorVenue sv
+      JOIN Sponsor s on s.sid = sv.sid
+      JOIN Venue v on v.vid = sv.vid
+      JOIN SponsorVenueContribution svc on (sv.contribution::numeric) = (svc.contribution::numeric)
+      WHERE s.name LIKE $1 AND (svc.contribution::numeric) >= $2 AND v.name LIKE $3 AND status LIKE $4
+    `;
+
+    try {
+      const result = await pool.query(qry, [`%${name}%`, contribution, `%${venue}%`, `%${status}%`])
+      res.json(result.rows)
+    } catch (error) {
+      console.error('Error executing queries', error);
+      res.status(500).send('Error retrieving from database');
+    }
+  } else if (table === 'game') {
+    const {date, start_time, end_time, sport} = query['game'];
+
+    if (cols['game']['date'] === 'true') selectedColumns.push('CAST(date AS VARCHAR(20))');
+    if (cols['game']['start_time'] === 'true') selectedColumns.push('start_time');
+    if (cols['game']['end_time'] === 'true') selectedColumns.push('end_time');
+    if (cols['game']['sport'] === 'true') selectedColumns.push('sport');
+
+    const selectedColumnsString = selectedColumns.join(', ');
+
+    const qry = `
+      SELECT ${selectedColumnsString}
+      FROM Game
+      WHERE date=$1 AND start_time=$2 AND end_time=$3 AND sport LIKE $4
+    `;
+
+    try {
+      const result = await pool.query(qry, [date, start_time, end_time, `%${sport}%`])
+      res.json(result.rows)
+    } catch (error) {
+      console.error('Error executing queries', error);
+      res.status(500).send('Error retrieving from database');
+    }
+  } else if (table === 'teammanaged') {
+    const {name, winrate, city} = query['teammanaged'];
+
+    if (cols['teammanaged']['name'] === 'true') selectedColumns.push('name');
+    if (cols['teammanaged']['winrate'] === 'true') selectedColumns.push('winrate');
+    if (cols['teammanaged']['city'] === 'true') selectedColumns.push('city');
+
+    const selectedColumnsString = selectedColumns.join(', ');
+
+    const qry = `
+      SELECT ${selectedColumnsString}
+      FROM TeamManaged
+      WHERE name LIKE $1 AND winrate=$2 AND city LIKE $3
+    `;
+
+    try {
+      const result = await pool.query(qry, [`%${name}%`, winrate, `%${city}%`])
+      res.json(result.rows)
+    } catch (error) {
+      console.error('Error executing queries', error);
+      res.status(500).send('Error retrieving from database');
+    }
+  }
+});
+
 app.get('/teams', (req, res) => {
   const query = `
     SELECT TeamManaged.*, Users.email, Users.firstname, Users.lastname 
@@ -270,6 +384,33 @@ app.get('/games', async (req, res) => {
   }
 });
 
+app.get('/filtered-games/:after/:before', async (req, res) => {
+  const after = req.params['after'];
+  const before = req.params['before'];
+
+  console.log(after)
+  console.log(before)
+  const query = `
+    SELECT CAST(g.date AS VARCHAR(20)), g.sport, t1.name AS home, t2.name AS away, g.start_time, g.end_time, v.name AS venue, vpc.city, v.capacity, u.firstname AS admin_firstname, u.lastname AS admin_lastname, g.gid, g.vid, g.home_tid, g.away_tid, g.uid
+    FROM Game g 
+    JOIN TeamManaged t1 ON g.home_tid = t1.tid 
+    JOIN TeamManaged t2 ON g.away_tid = t2.tid 
+    JOIN Venue v ON g.vid = v.vid 
+    JOIN VenuePostalCode vpc ON v.postalcode = vpc.postalcode 
+    JOIN Users u ON g.uid = u.uid
+    WHERE g.date > $1 AND g.date < $2
+  `;
+
+  pool.query(query, [after, before], (err, result) => {
+    if (err) {
+      console.error('Error executing query', err);
+      res.status(500).send('Error retrieving games');
+    } else {
+      res.json(result.rows);
+    }
+  });
+});
+
 app.get('/attendee/:gid', (req, res) => {
   const gid = req.params['gid'];
 
@@ -291,16 +432,11 @@ app.get('/attendee/:gid', (req, res) => {
 });
 
 app.put('/update-game', async (req, res) => {
-  const { date, sport, start_time, end_time, vid, home_tid, away_tid} = req.body;
+  const { gid, sport, start_time, end_time, vid, home_tid, away_tid, uid} = req.body;
 
   try {
-    // First SQL statement
-    const updateGameResult = await pool.query('UPDATE Game SET sport=$1, start_time=$2, end_time=$3, vid=$4 WHERE date=$5', [sport, start_time, end_time, vid, date]);
-  
-    // Second SQL statement
-    const updatePlaysResult = await pool.query('UPDATE Plays SET home_tid=$2, away_tid=$3 WHERE date=$1', [date, home_tid, away_tid]);
-  
-    res.json({ gameResult: updateGameResult.rows, playsResult: updatePlaysResult.rows });
+    const updateGameResult = await pool.query('UPDATE Game SET sport=$1, start_time=$2, end_time=$3, home_tid=$4, away_tid=$5, vid=$6, uid=$8 WHERE gid=$7', [sport, start_time, end_time, home_tid, away_tid, vid, gid, uid]);  
+    res.json(updateGameResult.rows);
   } catch (err) {
     console.error('Error executing queries', err);
     res.status(500).send('Error updating database');
@@ -308,19 +444,15 @@ app.put('/update-game', async (req, res) => {
 });
 
 app.put('/add-game', async (req, res) => {
-  const { date, sport, start_time, end_time, vid, home_tid, away_tid} = req.body;
+  const gid = uuidv4(); 
+  const { date, sport, start_time, end_time, vid, home_tid, away_tid, uid} = req.body;
 
   try {
-    // First SQL statement
-    const addGameResult = await pool.query('INSERT INTO Game VALUES ($1, $2, $3, $4, $5)', [date, vid, sport, start_time, end_time]);
-  
-    // Second SQL statement
-    const addPlaysResult = await pool.query('INSERT INTO Plays VALUES ($1, $2, $3)', [home_tid, away_tid, date]);
-  
-    res.json({ gameResult: addGameResult.rows, playsResult: addPlaysResult.rows });
+    const addGameResult = await pool.query('INSERT INTO Game VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [gid, vid, home_tid, away_tid, uid, date, start_time, end_time, sport]);
+    res.json(addGameResult.rows);
   } catch (err) {
     console.error('Error executing queries', err);
-    res.status(500).send('Error inserting into database');
+    res.status(500).send('Error inserting game into database');
   }
 });
 
@@ -340,10 +472,10 @@ app.get('/players/:tid', (req, res) => {
 app.get('/sponsors/:vid', async (req, res) => {
   const vid = req.params['vid'];
 
-  pool.query('SELECT s.*, v.vid, v.name as venue, s1.contribution FROM Sponsor s JOIN Sponsors s1 ON s.sid = s1.sid JOIN Venue v ON v.vid = s1.vid WHERE v.vid = $1', [vid], (err, result) => {
+  pool.query('SELECT s.*, svc.status, v.vid, v.name as venue, sv.contribution FROM Sponsor s JOIN SponsorVenue sv ON s.sid = sv.sid JOIN Venue v ON v.vid = sv.vid JOIN SponsorVenueContribution svc on svc.contribution = sv.contribution WHERE v.vid = $1', [vid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
-        res.status(500).send('Error retrieving players');
+        res.status(500).send('Error retrieving sponsors');
       } else {
         res.json(result.rows);
       }
@@ -379,11 +511,25 @@ app.put('/update-player/:pid', (req, res) => {
   });
 });
 
+app.put('/update-team/:tid', (req, res) => {
+  const tid = req.params['tid'];
+  const {name, city, winrate, uid} = req.body;
+
+  pool.query('UPDATE TeamManaged SET name = $1, city = $2, winrate = $3, UID = $4 WHERE TID = $5', [name, city, winrate, uid, tid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error updating team');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
 app.post('/add-user', (req, res) => {
   const uid = uuidv4(); 
-  const { username, email, password, firstname, lastname, role } = req.body;
+  const { email, password, firstname, lastname, role } = req.body;
 
-  pool.query("INSERT INTO Users VALUES ($1, $2, $3, $4, $5, $6, $7)", [uid, username, firstname, lastname, email, password, role], (error, results) => {
+  pool.query("INSERT INTO Users VALUES ($1, $2, $3, $4, $5, $6)", [uid, firstname, lastname, email, password, role], (error, results) => {
     if (error) {
       throw error;
     }
@@ -393,9 +539,9 @@ app.post('/add-user', (req, res) => {
 
 app.post('/add-team', (req, res) => {
   const tid = uuidv4(); 
-  const { uid, city, name, win_rate } = req.body;
+  const { uid, city, name, winrate } = req.body;
   
-  pool.query("INSERT INTO Team VALUES ($1, $2, $3, $4, $5)", [tid, uid, city, name, win_rate], (error, results) => {
+  pool.query("INSERT INTO Team VALUES ($1, $2, $3, $4, $5)", [tid, uid, city, name, winrate], (error, results) => {
     if (error) {
       throw error;
     }
@@ -405,9 +551,9 @@ app.post('/add-team', (req, res) => {
 
 app.put('/update-user', (req, res) => {
     const uid = req.body.uid;
-    const { username, email, password, firstname, lastname, role } = req.body;
+    const { email, password, firstname, lastname, role } = req.body;
 
-    pool.query('UPDATE Users SET username = $1, email = $2, password = $3, firstname = $4, lastname = $5, role = $6 WHERE UID = $7', [username, email, password, firstname, lastname, role, uid], (error, results) => {
+    pool.query('UPDATE Users SET email = $1, password = $2, firstname = $3, lastname = $4, role = $5 WHERE UID = $6', [email, password, firstname, lastname, role, uid], (error, results) => {
         if (error) {
             throw error;
         }

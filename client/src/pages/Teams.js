@@ -60,7 +60,12 @@ const Teams = () => {
 
     const fetchUsers = async () => {
         try {
-            const users = await axios.get('http://localhost:5001/users');
+            const users = await axios.get('http://localhost:5000/users', {params: {
+                firstname: true,
+                lastname: true,
+                email: true,
+                role: true}
+            });
             const managersList = users.data.filter(user => user.role === 'manager');
             setManagers(managersList);
         } catch (error) {
@@ -114,6 +119,19 @@ const Teams = () => {
             console.log(response);
             fetchPlayers(player.tid);
             handleEditPlayerClose();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const handleSubmitUpdateTeam = async (event) => {
+        event.preventDefault();
+        const tid = team.tid;
+        try {
+            const response = await axios.put(`http://localhost:5000/update-team/${tid}`, team);
+            console.log(response);
+            fetchTeams();
+            handleClose();
         } catch (error) {
             console.log(error.message);
         }
@@ -214,7 +232,7 @@ const Teams = () => {
                     {team.name}
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-                    <Form >
+                    <Form onSubmit={handleSubmitUpdateTeam}>
                         <Form.Group className="mb-3" controlId="formBasicEmail">
                             <Form.Label>Team Name</Form.Label>
                             <Form.Control defaultValue={team.name} type="text" placeholder="Enter Team Name"  />
@@ -227,7 +245,7 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Win Rate</Form.Label>
-                            <Form.Control defaultValue={team.winrate} type="text" placeholder="Enter Win Rate" onChange={(e) => setTeam({...team, win_rate: e.target.value})} />
+                            <Form.Control defaultValue={team.winrate} type="text" placeholder="Enter Win Rate" onChange={(e) => setTeam({...team, winrate: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -308,7 +326,7 @@ const Teams = () => {
                             <Form.Select onChange={(e) => setTeam({...team, uid: e.target.value})}>
                                 <option>Select Manager</option>
                                 {managers.map(manager => {
-                                    return <option key={manager.uid} value={manager.uid}>{manager.username}</option>
+                                    return <option key={manager.uid} value={manager.uid}>{manager.firstname} {manager.lastname}</option>
                                 })}
                             </Form.Select>
                         </Form.Group>
