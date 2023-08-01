@@ -519,6 +519,20 @@ app.put('/update-player/:pid', (req, res) => {
   });
 });
 
+app.put('/update-team/:tid', (req, res) => {
+  const tid = req.params['tid'];
+  const {name, city, winrate, uid} = req.body;
+
+  pool.query('UPDATE TeamManaged SET name = $1, city = $2, winrate = $3, UID = $4 WHERE TID = $5', [name, city, winrate, uid, tid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error updating team');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
 app.post('/add-user', (req, res) => {
   const uid = uuidv4(); 
   const { username, email, password, firstname, lastname, role } = req.body;
