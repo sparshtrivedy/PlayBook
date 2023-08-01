@@ -545,9 +545,9 @@ app.post('/add-team', (req, res) => {
 
 app.put('/update-user', (req, res) => {
     const uid = req.body.uid;
-    const { username, email, password, firstname, lastname, role } = req.body;
+    const { email, password, firstname, lastname, role } = req.body;
 
-    pool.query('UPDATE Users SET username = $1, email = $2, password = $3, firstname = $4, lastname = $5, role = $6 WHERE UID = $7', [username, email, password, firstname, lastname, role, uid], (error, results) => {
+    pool.query('UPDATE Users SET email = $1, password = $2, firstname = $3, lastname = $4, role = $5 WHERE UID = $6', [email, password, firstname, lastname, role, uid], (error, results) => {
         if (error) {
             throw error;
         }
