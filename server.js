@@ -443,19 +443,15 @@ app.put('/update-game', async (req, res) => {
 });
 
 app.put('/add-game', async (req, res) => {
-  const { date, sport, start_time, end_time, vid, home_tid, away_tid} = req.body;
+  const gid = uuidv4(); 
+  const { date, sport, start_time, end_time, vid, home_tid, away_tid, uid} = req.body;
 
   try {
-    // First SQL statement
-    const addGameResult = await pool.query('INSERT INTO Game VALUES ($1, $2, $3, $4, $5)', [date, vid, sport, start_time, end_time]);
-  
-    // Second SQL statement
-    const addPlaysResult = await pool.query('INSERT INTO Plays VALUES ($1, $2, $3)', [home_tid, away_tid, date]);
-  
-    res.json({ gameResult: addGameResult.rows, playsResult: addPlaysResult.rows });
+    const addGameResult = await pool.query('INSERT INTO Game VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [gid, vid, home_tid, away_tid, uid, date, start_time, end_time, sport]);
+    res.json(addGameResult.rows);
   } catch (err) {
     console.error('Error executing queries', err);
-    res.status(500).send('Error inserting into database');
+    res.status(500).send('Error inserting game into database');
   }
 });
 
