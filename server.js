@@ -475,10 +475,10 @@ app.get('/players/:tid', (req, res) => {
 app.get('/sponsors/:vid', async (req, res) => {
   const vid = req.params['vid'];
 
-  pool.query('SELECT s.*, v.vid, v.name as venue, s1.contribution FROM Sponsor s JOIN Sponsors s1 ON s.sid = s1.sid JOIN Venue v ON v.vid = s1.vid WHERE v.vid = $1', [vid], (err, result) => {
+  pool.query('SELECT s.*, svc.status, v.vid, v.name as venue, sv.contribution FROM Sponsor s JOIN SponsorVenue sv ON s.sid = sv.sid JOIN Venue v ON v.vid = sv.vid JOIN SponsorVenueContribution svc on svc.contribution = sv.contribution WHERE v.vid = $1', [vid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
-        res.status(500).send('Error retrieving players');
+        res.status(500).send('Error retrieving sponsors');
       } else {
         res.json(result.rows);
       }
@@ -530,9 +530,9 @@ app.put('/update-team/:tid', (req, res) => {
 
 app.post('/add-user', (req, res) => {
   const uid = uuidv4(); 
-  const { username, email, password, firstname, lastname, role } = req.body;
+  const { email, password, firstname, lastname, role } = req.body;
 
-  pool.query("INSERT INTO Users VALUES ($1, $2, $3, $4, $5, $6, $7)", [uid, username, firstname, lastname, email, password, role], (error, results) => {
+  pool.query("INSERT INTO Users VALUES ($1, $2, $3, $4, $5, $6)", [uid, firstname, lastname, email, password, role], (error, results) => {
     if (error) {
       throw error;
     }
