@@ -320,7 +320,7 @@ app.get('/venues', (req, res) => {
 app.put('/update-venue', (req, res) => {
   const {name, postalcode, capacity, vid} = req.body;
 
-  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3 WHERE vid=$4', [name, city, capacity, vid], (err, result) => {
+  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3 WHERE vid=$4', [name, postalcode, capacity, vid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
