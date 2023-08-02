@@ -366,7 +366,7 @@ app.get('/games', async (req, res) => {
 
   const query = `
     SELECT ${selectedColumnsString}, g.gid, g.vid, g.home_tid, g.away_tid, g.uid
-    FROM Game g 
+    FROM Game g
     JOIN TeamManaged t1 ON g.home_tid = t1.tid 
     JOIN TeamManaged t2 ON g.away_tid = t2.tid 
     JOIN Venue v ON g.vid = v.vid 
@@ -431,10 +431,10 @@ app.get('/attendee/:gid', (req, res) => {
 });
 
 app.put('/update-game', async (req, res) => {
-  const { gid, sport, start_time, end_time, vid, home_tid, away_tid, uid} = req.body;
+  const { gid, date, sport, start_time, end_time, vid, home_tid, away_tid, uid} = req.body;
 
   try {
-    const updateGameResult = await pool.query('UPDATE Game SET sport=$1, start_time=$2, end_time=$3, home_tid=$4, away_tid=$5, vid=$6, uid=$8 WHERE gid=$7', [sport, start_time, end_time, home_tid, away_tid, vid, gid, uid]);  
+    const updateGameResult = await pool.query('UPDATE Game SET sport=$1, date=$9, start_time=$2, end_time=$3, home_tid=$4, away_tid=$5, vid=$6, uid=$8 WHERE gid=$7', [sport, start_time, end_time, home_tid, away_tid, vid, gid, uid, date]);  
     res.json(updateGameResult.rows);
   } catch (err) {
     console.error('Error executing queries', err);
