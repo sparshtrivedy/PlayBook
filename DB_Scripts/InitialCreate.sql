@@ -11,9 +11,9 @@ CREATE TABLE Users (
 
 CREATE TABLE TeamManaged (
 	tid UUID,
-uid UUID UNIQUE NOT NULL,
+	uid UUID UNIQUE NOT NULL,
 	name VARCHAR(20),
-winrate INTEGER,
+	winrate INTEGER,
 	city VARCHAR(20),
 	PRIMARY KEY(tid),
 	FOREIGN KEY(uid) REFERENCES Users
@@ -70,7 +70,7 @@ CREATE TABLE Venue (
 );
 
 CREATE TABLE SponsorVenue (
-  vid UUID,
+  	vid UUID,
 	sid UUID,
 	contribution MONEY,
 	PRIMARY KEY(sid, vid),
@@ -81,27 +81,27 @@ CREATE TABLE SponsorVenue (
 
 CREATE TABLE Game (
 	gid UUID,
-  vid UUID NOT NULL,
-  home_tid UUID NOT NULL,
-  away_tid UUID NOT NULL,
-  uid UUID NOT NULL,
+	vid UUID NOT NULL,
+	home_tid UUID NOT NULL,
+	away_tid UUID NOT NULL,
+	uid UUID NOT NULL,
 	date DATE UNIQUE,
 	start_time TIME,
 	end_time TIME,
 	sport VARCHAR(20),
 	PRIMARY KEY(gid),
-	FOREIGN KEY(vid) REFERENCES Venue,
-  FOREIGN KEY(home_tid) REFERENCES TeamManaged,
-  FOREIGN KEY(away_tid) REFERENCES TeamManaged,
-  FOREIGN KEY(uid) REFERENCES Users
+	FOREIGN KEY(vid) REFERENCES Venue ON DELETE CASCADE,
+	FOREIGN KEY(home_tid) REFERENCES TeamManaged ON DELETE CASCADE,
+	FOREIGN KEY(away_tid) REFERENCES TeamManaged ON DELETE CASCADE,
+	FOREIGN KEY(uid) REFERENCES Users ON DELETE CASCADE
 );
 
 CREATE TABLE Ticket (
 	seat_num INTEGER,
-  gid UUID NOT NULL,
-  aid UUID,
+	gid UUID NOT NULL,
+	aid UUID,
 	price MONEY,
-  status VARCHAR(20),
+  	status VARCHAR(20),
 	PRIMARY KEY(seat_num, gid),
 	FOREIGN KEY(gid) REFERENCES Game ON DELETE CASCADE,
 	FOREIGN KEY(aid) REFERENCES Attendee
@@ -109,7 +109,7 @@ CREATE TABLE Ticket (
 
 CREATE TABLE SportsPeople (
 	pid UUID,
-  tid UUID NOT NULL,
+  	tid UUID NOT NULL,
 	firstname VARCHAR(20),
 	lastname VARCHAR(20),
 	PRIMARY KEY(pid),
@@ -118,21 +118,21 @@ CREATE TABLE SportsPeople (
 
 CREATE TABLE Players (
 	pid UUID,
-  status VARCHAR(20),
+  	status VARCHAR(20),
 	yrs_of_exp INTEGER,
 	jersey_num INTEGER,
 	position VARCHAR(20),
 	PRIMARY KEY(pid),
 	FOREIGN KEY(pid) REFERENCES SportsPeople,
-  FOREIGN KEY(status, yrs_of_exp) REFERENCES PlayersContract(status, yrs_of_exp)
+  	FOREIGN KEY(status, yrs_of_exp) REFERENCES PlayersContract(status, yrs_of_exp)
 );
 
 CREATE TABLE Coach (
 	pid UUID,
-  type VARCHAR(20),
+  	type VARCHAR(20),
 	specialization VARCHAR(20),
 	PRIMARY KEY(pid),
 	FOREIGN KEY(pid) REFERENCES SportsPeople,
-  FOREIGN KEY(type, specialization) REFERENCES CoachSalary(type, specialization)
+  	FOREIGN KEY(type, specialization) REFERENCES CoachSalary(type, specialization)
 );
 

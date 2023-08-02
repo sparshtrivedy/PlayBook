@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: 'http://localhost:3000',
-    methods: ['GET', 'POST', 'PUT'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
@@ -560,10 +560,10 @@ app.put('/update-user', (req, res) => {
     });
 });
 
-app.put('/delete-user', authenticateJWT, async (req, res) => {
-  const uid = req.user.UID;
+app.delete('/delete-user/:uid', (req, res) => {
+  const uid = req.params['uid'];
 
-  pool.query('DELETE FROM Users WHERE UID = $1', [uid], (error, results) => {
+  pool.query('DELETE FROM Users WHERE uid = $1', [uid], (error, results) => {
       if (error) {
           throw error;
       }
