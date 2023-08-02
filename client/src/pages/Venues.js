@@ -89,7 +89,7 @@ const Venues = () => {
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>City</th>
+                        <th>Postal Code</th>
                         <th>Capacity</th>
                         <th>Actions</th>
                     </tr>
@@ -99,7 +99,7 @@ const Venues = () => {
                         return (
                             <tr key={(venue.vid).toString().split('T')[0]}>
                                 <td>{venue.name}</td>
-                                <td>{venue.city}</td>
+                                <td>{venue.postalcode}</td>
                                 <td>{venue.capacity}</td>
                                 <td>
                                     <Button id={`editvenue_${venue.vid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
@@ -126,8 +126,8 @@ const Venues = () => {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>City</Form.Label>
-                            <Form.Control defaultValue={venue.city} type="text" placeholder="Enter City" onChange={(e) => setVenue({...venue, city: e.target.value})} />
+                            <Form.Label>Postal Code</Form.Label>
+                            <Form.Control defaultValue={venue.postalcode} type="text" placeholder="Enter Postal Code" onChange={(e) => setVenue({...venue, postalcode: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -154,8 +154,8 @@ const Venues = () => {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>City</Form.Label>
-                            <Form.Control type="text" placeholder="Enter City" onChange={(e) => setVenue({...venue, city: e.target.value})} />
+                            <Form.Label>Postal Code</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Postal Code" onChange={(e) => setVenue({...venue, postalcode: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">

@@ -316,10 +316,11 @@ app.get('/venues', (req, res) => {
   });
 });
 
+//TODO: Add PostalCode/DONE
 app.put('/update-venue', (req, res) => {
-  const {name, city, capacity, vid} = req.body;
+  const {name, postalcode, capacity, vid} = req.body;
 
-  pool.query('UPDATE Venue SET name=$1, city=$2, capacity=$3 WHERE vid=$4', [name, city, capacity, vid], (err, result) => {
+  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3 WHERE vid=$4', [name, city, capacity, vid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -329,11 +330,12 @@ app.put('/update-venue', (req, res) => {
   });
 });
 
+//TODO: Add Postal Code/DONE
 app.post('/add-venue', (req, res) => {
   const vid = uuidv4();
-  const {name, city, capacity} = req.body;
+  const {name, postalcode, capacity} = req.body;
 
-  pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, city, capacity], (err, result) => {
+  pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, postalcode, capacity], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -569,6 +571,23 @@ app.put('/delete-user', authenticateJWT, async (req, res) => {
           throw error;
       }
       res.status(200).send(`User deleted with id: ${uid}`)
+  });
+});
+//DELETE GAMES
+
+//DELETE VENUES
+
+//DELETE PLAYERS
+
+//DELETE TEAM
+app.put('/delete-team', authenticateJWT, async (req, res) => {
+  const tid = req.team.TID;
+
+  pool.query('DELETE FROM Team WHERE TID = $1', [tid], (error, results) => {
+      if (error) {
+          throw error;
+      }
+      res.status(200).send(`Team deleted with id: ${tid}`)
   });
 });
 
