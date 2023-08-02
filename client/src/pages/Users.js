@@ -40,7 +40,6 @@ const Users = () => {
 
     const handleShow = async (e) => {
         const id = e.target.id.split('_')[1]
-        console.log('hello'+e.target.id)
         setUser(users.filter(user => user.uid === id)[0])
         setShow(true);
     }
@@ -67,6 +66,19 @@ const Users = () => {
         event.preventDefault();
         try {
             const response = await axios.post('http://localhost:5001/add-user', user);
+            console.log(response);
+            fetchUsers();
+            handleAddUserClose();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const handleDeleteUser = async (event) => {
+        event.preventDefault();
+        const uid = event.target.id.split('_')[1]
+        try {
+            const response = await axios.delete(`http://localhost:5000/delete-user/${uid}`);
             console.log(response);
             fetchUsers();
             handleAddUserClose();
@@ -140,7 +152,7 @@ const Users = () => {
                                 }
                                 <td>
                                     <Button id={`edituser_${user.uid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
-                                    <Button id={`deleteuser_${user.uid}`} variant='danger' size="sm">Delete</Button>
+                                    <Button id={`deleteuser_${user.uid}`} variant='danger' size="sm" onClick={handleDeleteUser}>Delete</Button>
                                 </td>
                             </tr>
                         )

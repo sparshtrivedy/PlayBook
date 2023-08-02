@@ -370,7 +370,7 @@ const Teams = () => {
             <Offcanvas show={showEditPlayer} placement='end' onHide={handleEditPlayerClose}>
                 <Offcanvas.Header className='bg-success' closeButton>
                     <Offcanvas.Title className='text-light'>Edit Player</Offcanvas.Title>
-                    <div className='text-light'>{team.name}</div>
+                    <div className='text-light'>{player.firstname} {player.lastname}</div>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form onSubmit={handleSubmitUpdatePlayer}>

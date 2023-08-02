@@ -26,12 +26,13 @@ const Venues = () => {
 
     useEffect(() => {
         const fetchSponsors = async () => {
-            console.log(venue.vid)
-            try {
-                const response = await axios.get(`http://localhost:5001/sponsors/${venue.vid}`);
-                setSponsors(response.data);
-            } catch (error) {
-                console.log(error.message);
+            if (venue.vid) {
+                try {
+                    const response = await axios.get(`http://localhost:5000/sponsors/${venue.vid}`);
+                    setSponsors(response.data);
+                } catch (error) {
+                    console.log(error.message);
+                }
             }
         }
 
@@ -48,7 +49,7 @@ const Venues = () => {
 
     const fetchVenues = async () => {
         try {
-            const response = await axios.get('http://localhost:5001/venues');
+            const response = await axios.get('http://localhost:5000/venues');
             setVenues(response.data);
         } catch (error) {
             console.log(error.message);
@@ -58,7 +59,7 @@ const Venues = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5001/update-venue', venue);
+            const response = await axios.put('http://localhost:5000/update-venue', venue);
             console.log(response);
             fetchVenues();
             handleClose();
@@ -70,7 +71,7 @@ const Venues = () => {
     const handleAddSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5001/add-venue', venue);
+            const response = await axios.post('http://localhost:5000/add-venue', venue);
             console.log(response);
             fetchVenues();
             handleAddClose();
@@ -90,6 +91,8 @@ const Venues = () => {
                     <tr>
                         <th>Name</th>
                         <th>Postal Code</th>
+                        <th>City</th>
+                        <th>Province</th>
                         <th>Capacity</th>
                         <th>Actions</th>
                     </tr>
@@ -100,6 +103,8 @@ const Venues = () => {
                             <tr key={(venue.vid).toString().split('T')[0]}>
                                 <td>{venue.name}</td>
                                 <td>{venue.postalcode}</td>
+                                <td>{venue.city}</td>
+                                <td>{venue.province}</td>
                                 <td>{venue.capacity}</td>
                                 <td>
                                     <Button id={`editvenue_${venue.vid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
@@ -131,6 +136,16 @@ const Venues = () => {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>City</Form.Label>
+                            <Form.Control defaultValue={venue.city} type="text" placeholder="Enter City" onChange={(e) => setVenue({...venue, city: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Province</Form.Label>
+                            <Form.Control defaultValue={venue.province} type="text" placeholder="Enter Province" onChange={(e) => setVenue({...venue, province: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Capacity</Form.Label>
                             <Form.Control defaultValue={venue.capacity} type="text" placeholder="Enter Capacity" onChange={(e) => setVenue({...venue, capacity: e.target.value})} />
                         </Form.Group>
@@ -156,6 +171,16 @@ const Venues = () => {
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Postal Code</Form.Label>
                             <Form.Control type="text" placeholder="Enter Postal Code" onChange={(e) => setVenue({...venue, postalcode: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>City</Form.Label>
+                            <Form.Control type="text" placeholder="Enter City" onChange={(e) => setVenue({...venue, city: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Province</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Province" onChange={(e) => setVenue({...venue, province: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
