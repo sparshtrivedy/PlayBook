@@ -450,7 +450,7 @@ const Custom = () => {
                    <Row>
                         <Col>
                             <Form.Check type='checkbox'
-                                        checked={cols.sponsor.end_time}
+                                        checked={cols.game.end_time}
                                         label='End Time' 
                                         onChange={(e) => 
                                             setCols({
@@ -508,7 +508,7 @@ const Custom = () => {
                                         ...query, 
                                         game: {
                                             ...query.game, 
-                                            start_time: e.target.value??0 
+                                            start_time: e.target.value
                                         }
                                     })
                                 }

@@ -115,7 +115,7 @@ app.get('/custom', async (req, res) => {
     `;
 
     try {
-      const result = await pool.query(qry, [`%${firstname}%`, `%${lastname}%`, `%${email}%`, `%${role}%`])
+      const result = await pool.query(qry, [`%${firstname||''}%`, `%${lastname||''}%`, `%${email||''}%`, `%${role||''}%`])
       res.json(result.rows)
     } catch (error) {
       console.error('Error executing queries', error);
@@ -137,11 +137,11 @@ app.get('/custom', async (req, res) => {
       JOIN Sponsor s on s.sid = sv.sid
       JOIN Venue v on v.vid = sv.vid
       JOIN SponsorVenueContribution svc on (sv.contribution::numeric) = (svc.contribution::numeric)
-      WHERE s.name LIKE $1 AND (svc.contribution::numeric) >= $2 AND v.name LIKE $3 AND status LIKE $4
+      WHERE s.name LIKE $1 ${contribution && `AND (svc.contribution::numeric) >= ${contribution} `} AND v.name LIKE $2 AND status LIKE $3
     `;
 
     try {
-      const result = await pool.query(qry, [`%${name}%`, contribution, `%${venue}%`, `%${status}%`])
+      const result = await pool.query(qry, [`%${name}%`, `%${venue}%`, `%${status}%`])
       res.json(result.rows)
     } catch (error) {
       console.error('Error executing queries', error);
@@ -160,11 +160,11 @@ app.get('/custom', async (req, res) => {
     const qry = `
       SELECT ${selectedColumnsString}
       FROM Game
-      WHERE date=$1 AND start_time=$2 AND end_time=$3 AND sport LIKE $4
+      WHERE ${date && `date = '${date}' AND `} ${start_time && `start_time = '${start_time}' AND `} ${end_time && `end_time = '${end_time}' AND `} sport LIKE $1
     `;
 
     try {
-      const result = await pool.query(qry, [date, start_time, end_time, `%${sport}%`])
+      const result = await pool.query(qry, [`%${sport}%`])
       res.json(result.rows)
     } catch (error) {
       console.error('Error executing queries', error);
@@ -182,11 +182,11 @@ app.get('/custom', async (req, res) => {
     const qry = `
       SELECT ${selectedColumnsString}
       FROM TeamManaged
-      WHERE name LIKE $1 AND winrate=$2 AND city LIKE $3
+      WHERE name LIKE $1 AND ${winrate && `winrate = '${winrate}' AND `} city LIKE $2
     `;
 
     try {
-      const result = await pool.query(qry, [`%${name}%`, winrate, `%${city}%`])
+      const result = await pool.query(qry, [`%${name||''}%`, `%${city||''}%`])
       res.json(result.rows)
     } catch (error) {
       console.error('Error executing queries', error);
@@ -302,7 +302,7 @@ app.get('/filter-revenue/:greater/:lower', (req, res) => {
 
 app.get('/venues', (req, res) => {
   const query = `
-    SELECT v.*, vpc.City 
+    SELECT v.*, vpc.city, vpc.province
     FROM Venue v 
     JOIN VenuePostalCode vpc ON v.postalcode = vpc.postalcode
   `
