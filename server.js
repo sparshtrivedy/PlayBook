@@ -460,8 +460,8 @@ app.put('/add-game', async (req, res) => {
 
 app.get('/players/:tid', (req, res) => {
   const tid = req.params['tid'];
-
-  pool.query('SELECT sp.*, p.jersey_num FROM SportsPeople sp LEFT JOIN Players p ON sp.pid = p.pid WHERE tid = $1', [tid], (err, result) => {
+  //Removed LEFT on LEFT Join
+  pool.query('SELECT sp.*, p.jersey_num FROM SportsPeople sp JOIN Players p ON sp.pid = p.pid WHERE tid = $1', [tid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
