@@ -522,7 +522,7 @@ const Teams = () => {
                 </Offcanvas.Body>
             </Offcanvas>
 
-            <Offcanvas show={showAddPlayer} placement='end' onHide={handleAddCoachClose}>
+            <Offcanvas show={showAddCoach} placement='end' onHide={handleAddCoachClose}>
                 <Offcanvas.Header className='bg-success' closeButton>
                     <Offcanvas.Title className='text-light'>Add Coach</Offcanvas.Title>
                     <div className='text-light'>{team.name}</div>
