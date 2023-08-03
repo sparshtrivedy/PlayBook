@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Button, Form, Offcanvas, Modal, Row, Col } from 'react-bootstrap';
-import { FaGreaterThan, FaFilter, FaCalculator } from 'react-icons/fa6'
+import { Table, Button, Form, Offcanvas, Modal, Row, Col, Alert } from 'react-bootstrap';
+import { FaGreaterThan, FaFilter, FaRankingStar, FaCalculator } from 'react-icons/fa6'
 import axios from 'axios';
 
 const Games = () => {
@@ -22,6 +22,8 @@ const Games = () => {
     const [showRevenueModal, setShowRevenueModal] = useState(false);
     const [after, setAfter] = useState('');
     const [before, setBefore] = useState('');
+    const [biggestFan, setBiggestFan] = useState({});
+    const [showBiggestFan, setShowBiggestFan] = useState(false);
     const [cols, setCols] = useState({
         date: true,
         sport: true,
@@ -63,6 +65,25 @@ const Games = () => {
     const handleDateFilter = async () => {
         try {
             fetchFilteredGames();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const handleBiggestFan = async () => {
+        try {
+            fetchBiggestFan()
+            setShowBiggestFan(true);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const fetchBiggestFan = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/biggest-fan`);
+            console.log(response.data);
+            setBiggestFan(response.data);
         } catch (error) {
             console.log(error.message);
         }
@@ -211,6 +232,37 @@ const Games = () => {
 
     return (
         <>
+            <Alert show={showBiggestFan} variant="success">
+                <Alert.Heading>Result</Alert.Heading>
+                <hr />
+                <p>
+                    The following attendees have attended all games that we have hosted:
+                </p>
+                <Table striped bordered hover responsive>
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {biggestFan.length && biggestFan.map((fan) => {
+                            return (
+                                <tr key={fan.aid}>
+                                    <td>{fan.firstname}</td>
+                                    <td>{fan.lastname}</td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </Table>
+                <hr />
+                <div className="d-flex justify-content-end">
+                    <Button onClick={() => setShowBiggestFan(false)} variant="outline-success">
+                        Close me
+                    </Button>
+                </div>
+            </Alert>
             <Form.Group as={Row} className="mb-3" controlId="formPlaintextEmail">
                 <Form.Label column sm="2">
                     After
@@ -273,7 +325,10 @@ const Games = () => {
             <Button variant="outline-primary" className="m-3" onClick={handleShowModal}>
                 <span className='d-flex justify-content-center align-items-center'><FaFilter className='mx-2'/>Filter Columns</span>
             </Button>
-            <Button variant="outline-danger" onClick={handleShowRevenueModal}>
+            <Button variant="outline-info" onClick={handleBiggestFan}>
+                 <span className='d-flex justify-content-center align-items-center'><FaRankingStar className='mx-2'/>Biggest Fans</span>
+            </Button>
+            <Button variant="outline-danger" className='m-3' onClick={handleShowRevenueModal}>
                  <span className='d-flex justify-content-center align-items-center'><FaCalculator className='mx-2'/>Check Revenue</span>
             </Button>
 
