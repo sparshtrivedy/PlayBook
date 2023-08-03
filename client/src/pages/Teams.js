@@ -8,12 +8,17 @@ const Teams = () => {
     const [managers, setManagers] = useState([]);
     const [players, setPlayers] = useState([]);
     const [player, setPlayer] = useState({});
+    const [coaches, setCoaches] = useState([]);
+    const [coach, setCoach] = useState({});
     const [team, setTeam] = useState({});
     const [show, setShow] = useState(false);
     const [showPlayers, setShowPlayers] = useState(false);
+    const [showCoaches, setShowCoaches] = useState(false);
     const [showAddTeam, setShowAddTeam] = useState(false);
     const [showAddPlayer, setShowAddPlayer] = useState(false);
     const [showEditPlayer, setShowEditPlayer] = useState(false);
+    const [showAddCoach, setShowAddCoach] = useState(false);
+    const [showEditCoach, setShowEditCoach] = useState(false);
     const [maxAvgCoach, setMaxAvgCoach] = useState([]);
     const [showCoach, setShowCoach] = useState(false);
 
@@ -36,11 +41,30 @@ const Teams = () => {
 
     const handleEditPlayerClose = () => setShowEditPlayer(false);
 
+    //TODO: handleAddCoachClose
+    const handleAddCoachClose = () => setShowAddCoach(false);
+
+    //TODO: handleAddCoachShow
+    const handleAddCoachShow = async (e) => {
+        setShowAddCoach(true);
+    }
+
+    //TODO: handleEditCoachClose
+    const handleEditCoachClose = () => setShowEditCoach(false);
+
     const handleEditPlayerShow = async (e) => {
         const pid = e.target.id.split('_')[1]
         console.log(pid)
         setPlayer(players.filter(player => player.pid === pid)[0])
         setShowEditPlayer(true);
+    }
+
+    //TODO: handleEditCoachShow
+    const handleEditCoachShow = async (e) => {
+        const pid = e.target.id.split('_')[1]
+        console.log(pid)
+        setCoach(coaches.filter(coach => coach.pid === pid)[0])
+        setShowEditCoach(true);
     }
 
     const handleClose = () => setShow(false);
@@ -57,6 +81,16 @@ const Teams = () => {
         const tid = e.target.id.split('_')[1];
         fetchPlayers(tid);
         setShowPlayers(true);
+    }
+
+    //TODO: handleCloseCoaches
+    const handleCloseCoaches = () => setShowCoaches(false);
+
+    //TODO: handleShowCoaches
+    const handleShowCoaches = async (e) => {
+        const tid = e.target.id.split('_')[1];
+        fetchCoaches(tid);
+        setShowCoaches(true);
     }
 
     const fetchUsers = async () => {
@@ -80,6 +114,18 @@ const Teams = () => {
             const response = await axios.get(`http://localhost:5000/players/${tid}`);
             console.log(response.data)
             setPlayers(response.data);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    //TODO: fetch Coaches
+    const fetchCoaches = async (tid) => {
+        setTeam(teams.filter(team => team.tid === tid)[0]);
+        try {
+            const response = await axios.get(`http://localhost:5000/coaches/${tid}`);
+            console.log(response.data)
+            setCoaches(response.data);
         } catch (error) {
             console.log(error.message);
         }
@@ -120,6 +166,36 @@ const Teams = () => {
             console.log(response);
             fetchPlayers(player.tid);
             handleEditPlayerClose();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    //TODO: handleSubmitAddCoach
+    const handleSubmitAddCoach = async (event) => {
+        event.preventDefault();
+        try {
+            const tid = event.target.id.split('_')[1];
+            setTeam(teams.filter(team => team.tid === tid)[0]);
+            const response = await axios.post(`http://localhost:5000/add-coach/${tid}`, coach);
+            console.log(response);
+            fetchCoaches(tid);
+            handleAddCoachClose();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    //TODO: handleSubmitUpdateCoach
+    const handleSubmitUpdateCoach = async (event) => {
+        event.preventDefault();
+        try {
+            const pid = coach.pid;
+            setCoach(coach.filter(coach => coach.pid === pid)[0]);
+            const response = await axios.put(`http://localhost:5000/update-coach/${pid}`, coach);
+            console.log(response);
+            fetchCoaches(coach.tid);
+            handleEditCoachClose();
         } catch (error) {
             console.log(error.message);
         }
@@ -217,6 +293,7 @@ const Teams = () => {
                                     <Button id={`editteam_${team.tid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
                                     <Button id={`deleteteam_${team.tid}`} variant='danger' size="sm">Delete</Button>{' '}
                                     <Button id={`players_${team.tid}`} variant='primary' size="sm" onClick={handleShowPlayers}>Players</Button>
+                                    <Button id={`coaches_${team.tid}`} variant='primary' size="sm" onClick={handleShowCoaches}>Coaches</Button>
                                 </td>
                             </tr>
                         )
@@ -292,6 +369,44 @@ const Teams = () => {
                                         <td>
                                             <Button id={`editplayer_${player.pid}`} variant='warning' size="sm" onClick={handleEditPlayerShow}>Edit</Button>{' '}
                                             <Button id={`deleteplayer_${player.pid}`} variant='danger' size="sm">Delete</Button>{' '}
+                                        </td>
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </Table>
+                </Offcanvas.Body>
+            </Offcanvas>
+
+            
+            <Offcanvas show={showCoaches} placement='bottom' onHide={handleCloseCoaches} backdrop="static">
+                <Offcanvas.Header className='bg-primary' closeButton>
+                    <Offcanvas.Title className='text-light'>View Coaches</Offcanvas.Title>
+                    <div className='text-light'>{team.name}</div>
+                    <Button variant='outline-light' onClick={handleAddCoachShow}>+ Add Coach</Button>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <Table striped bordered hover responsive>
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Type</th>
+                                <th>Specialization</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {coaches.map((coach) => {
+                                return (
+                                    <tr key={coach.pid}>
+                                        <td>{coach.firstname}</td>
+                                        <td>{coach.lastname}</td>
+                                        <td>{coach.type}</td>
+                                        <td>{coach.specialization}</td>
+                                        <td>
+                                            <Button id={`editcoach_${coach.pid}`} variant='warning' size="sm" onClick={handleEditCoachShow}>Edit</Button>{' '}
+                                            <Button id={`deletecoach_${coach.pid}`} variant='danger' size="sm">Delete</Button>{' '}
                                         </td>
                                     </tr>
                                 )
@@ -393,6 +508,84 @@ const Teams = () => {
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Team</Form.Label>
                             <Form.Select defaultValue={player.tid} onChange={(e) => setPlayer({...player, tid: e.target.value})}>
+                                <option>Select Team</option>
+                                {teams.map(team => {
+                                    return <option key={team.tid} value={team.tid}>{team.name}</option>
+                                })}
+                            </Form.Select>
+                        </Form.Group>
+
+                        <Button variant="primary" type="submit">
+                            Save
+                        </Button>
+                    </Form>
+                </Offcanvas.Body>
+            </Offcanvas>
+
+            <Offcanvas show={showAddPlayer} placement='end' onHide={handleAddCoachClose}>
+                <Offcanvas.Header className='bg-success' closeButton>
+                    <Offcanvas.Title className='text-light'>Add Coach</Offcanvas.Title>
+                    <div className='text-light'>{team.name}</div>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <Form id={`addcoach_${team.tid}`} onSubmit={handleSubmitAddCoach}>
+                        <Form.Group className="mb-3" controlId="formBasicEmail">
+                            <Form.Label>First Name</Form.Label>
+                            <Form.Control type="text" placeholder="Enter First Name" onChange={(e) => setCoach({...coach, firstname: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Last Name</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Last Name" onChange={(e) => setCoach({...coach, lastname: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Type</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setCoach({...coach, type: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Specialization</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setCoach({...coach, specialization: e.target.value})} />
+                        </Form.Group>
+
+                        <Button variant="primary" type="submit">
+                            Save
+                        </Button>
+                    </Form>
+                </Offcanvas.Body>
+            </Offcanvas>
+
+            <Offcanvas show={showEditCoach} placement='end' onHide={handleEditCoachClose}>
+                <Offcanvas.Header className='bg-success' closeButton>
+                    <Offcanvas.Title className='text-light'>Edit Coach</Offcanvas.Title>
+                    <div className='text-light'>{coach.firstname} {coach.lastname}</div>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <Form onSubmit={handleSubmitUpdateCoach}>
+                        <Form.Group className="mb-3" controlId="formBasicEmail">
+                            <Form.Label>First Name</Form.Label>
+                            <Form.Control type="text" defaultValue={coach.firstname} placeholder="Enter First Name" onChange={(e) => setCoach({...coach, firstname: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Last Name</Form.Label>
+                            <Form.Control type="text" defaultValue={coach.lastname} placeholder="Enter Last Name" onChange={(e) => setCoach({...coach, lastname: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Type</Form.Label>
+                            <Form.Control type="text" defaultValue={coach.type} placeholder="Enter Type" onChange={(e) => setCoach({...coach, type: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Specialization</Form.Label>
+                            <Form.Control type="text" defaultValue={coach.specialization} placeholder="Enter Specialization" onChange={(e) => setCoach({...coach, specialization: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Team</Form.Label>
+                            <Form.Select defaultValue={coach.tid} onChange={(e) => setCoach({...coach, tid: e.target.value})}>
                                 <option>Select Team</option>
                                 {teams.map(team => {
                                     return <option key={team.tid} value={team.tid}>{team.name}</option>

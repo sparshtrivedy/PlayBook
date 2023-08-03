@@ -492,6 +492,19 @@ app.get('/players/:tid', (req, res) => {
   });
 });
 
+//TODO: Get Coaches
+app.get('/coaches/:tid', (req, res) => {
+  const tid = req.params['tid'];
+  pool.query('SELECT sp.*, c.type, c.specialization FROM SportsPeople sp JOIN Coach c ON sp.pid = c.pid WHERE tid = $1', [tid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving coaches');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
 app.get('/sponsors/:vid', async (req, res) => {
   const vid = req.params['vid'];
 
@@ -528,6 +541,37 @@ app.put('/update-player/:pid', (req, res) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+//TODO: Add Coach
+app.post('/add-coach/:tid', (req, res) => {
+  const pid = uuidv4(); 
+  const tid = req.params['tid'];
+  const {firstname, lastname, type, specialization} = req.body;
+
+  pool.query('INSERT INTO Coach VALUES ($1, $2, $3, $4, $5)', [pid, tid, firstname, lastname, type, specialization], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+//TODO: Update Coach
+app.put('/update-coach/:pid', (req, res) => {
+  const pid = req.params['pid'];
+  const {firstname, lastname, type, specialization, tid} = req.body;
+
+  pool.query('UPDATE Coach SET firstname = $1, lastname = $2, type = $3, specialization = $4, TID = $5 WHERE PID = $6', [firstname, lastname, type, specialization, tid, pid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving coaches');
       } else {
         res.json(result.rows);
       }
@@ -599,6 +643,8 @@ app.delete('/delete-user/:uid', (req, res) => {
 //DELETE VENUES
 
 //DELETE PLAYERS
+
+//DELETE COACHES
 
 //DELETE TEAM
 app.put('/delete-team', authenticateJWT, async (req, res) => {
