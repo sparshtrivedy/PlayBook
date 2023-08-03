@@ -386,12 +386,33 @@ app.get('/games', async (req, res) => {
   }
 });
 
+app.get('/biggest-fan', async (req, res) => {
+  const query = `
+  SELECT a.aid, a.firstname, a.lastname
+  FROM Attendee a
+  WHERE NOT EXISTS((
+    SELECT g.gid
+    FROM Game g
+    ) EXCEPT (
+      SELECT t.gid
+      FROM Ticket t
+      WHERE t.aid=a.aid
+  ))`
+
+  pool.query(query, (err, result) => {
+    if (err) {
+      console.error('Error executing query', err);
+      res.status(500).send('Error retrieving biggest fan');
+    } else {
+      res.json(result.rows);
+    }
+  });
+})
+
 app.get('/filtered-games/:after/:before', async (req, res) => {
   const after = req.params['after'];
   const before = req.params['before'];
 
-  console.log(after)
-  console.log(before)
   const query = `
     SELECT CAST(g.date AS VARCHAR(20)), g.sport, t1.name AS home, t2.name AS away, g.start_time, g.end_time, v.name AS venue, vpc.city, v.capacity, u.firstname AS admin_firstname, u.lastname AS admin_lastname, g.gid, g.vid, g.home_tid, g.away_tid, g.uid
     FROM Game g 

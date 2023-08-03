@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Button, Offcanvas, Form, Alert } from 'react-bootstrap';
+import { FaMoneyBillTrendUp } from 'react-icons/fa6'
 import axios from 'axios';
 
 const Teams = () => {
@@ -223,8 +224,8 @@ const Teams = () => {
                 </tbody>
             </Table>
 
-            <Button variant='outline-success' onClick={handleAddTeamShow}>+ Add New Team</Button>{' '}
-            <Button variant='outline-primary' onClick={handleMaxAvgCoachType}>Coach Insights</Button>
+            <Button variant='outline-success' className='m-3' onClick={handleAddTeamShow}>+ Add New Team</Button>
+            <Button variant='outline-primary' onClick={handleMaxAvgCoachType}><FaMoneyBillTrendUp className='mx-2'/>Coach Insights</Button>
             
             <Offcanvas show={show} placement='end' onHide={handleClose} backdrop="static">
                 <Offcanvas.Header className='bg-warning' closeButton>
