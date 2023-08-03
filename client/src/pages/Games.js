@@ -240,7 +240,7 @@ const Games = () => {
                         { games[0] && games[0].venue && <th>Venue</th> }
                         { games[0] && games[0].city && <th>City</th> }
                         { games[0] && games[0].capacity && <th>Capacity</th> }
-                        { games[0] && games[0].uid && <th>Admin</th> }
+                        { games[0] && games[0].admin_firstname && <th>Admin</th> }
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -257,7 +257,7 @@ const Games = () => {
                                 {game.venue && <td>{game.venue}</td>}
                                 {game.city && <td>{game.city}</td>}
                                 {game.capacity && <td>{game.capacity}</td>}
-                                {game.uid && <td>{game.admin_firstname} {game.admin_lastname}</td>}
+                                {game.admin_firstname && <td>{game.admin_firstname} {game.admin_lastname}</td>}
                                 <td>
                                     <Button id={`editgame_${game.gid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
                                     <Button id={`deletegame_${game.gid}`} variant='danger' size="sm">Delete</Button>{' '}
