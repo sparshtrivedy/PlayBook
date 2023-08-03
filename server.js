@@ -481,8 +481,7 @@ app.put('/add-game', async (req, res) => {
 
 app.get('/players/:tid', (req, res) => {
   const tid = req.params['tid'];
-  //Removed LEFT on LEFT Join
-  pool.query('SELECT sp.*, p.jersey_num FROM SportsPeople sp JOIN Players p ON sp.pid = p.pid WHERE tid = $1', [tid], (err, result) => {
+  pool.query('SELECT sp.*, p.*, pc.contract FROM SportsPeople sp JOIN Players p ON sp.pid = p.pid JOIN PlayersContract pc ON p.yrs_of_exp = pc.yrs_of_exp AND p.status = pc.status WHERE tid = $1', [tid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
@@ -521,9 +520,9 @@ app.get('/sponsors/:vid', async (req, res) => {
 app.post('/add-player/:tid', (req, res) => {
   const pid = uuidv4(); 
   const tid = req.params['tid'];
-  const {firstname, lastname, number} = req.body;
+  const {firstname, lastname, number, pstatus, yrsofexp, position, contract} = req.body;
 
-  pool.query('INSERT INTO Player VALUES ($1, $2, $3, $4, $5)', [pid, tid, firstname, lastname, number], (err, result) => {
+  pool.query('INSERT INTO Player VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [pid, tid, firstname, lastname, number, pstatus, yrsofexp, position, contract], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
@@ -535,9 +534,9 @@ app.post('/add-player/:tid', (req, res) => {
 
 app.put('/update-player/:pid', (req, res) => {
   const pid = req.params['pid'];
-  const {firstname, lastname, number, tid} = req.body;
+  const {firstname, lastname, number, pstatus, yrsofexp, position, contract, tid} = req.body;
 
-  pool.query('UPDATE Player SET firstname = $1, lastname = $2, number = $3, TID = $4 WHERE PID = $5', [firstname, lastname, number, tid, pid], (err, result) => {
+  pool.query('UPDATE Player SET firstname = $1, lastname = $2, number = $3, pstatus = $4, yrsofexp = $5, position = $6, contract = $7, TID = $8 WHERE PID = $9', [firstname, lastname, number, pstatus, yrsofexp, position, contract, tid, pid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');

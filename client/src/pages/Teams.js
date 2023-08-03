@@ -356,6 +356,10 @@ const Teams = () => {
                                 <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>Jersey Number</th>
+                                <th>Status</th>
+                                <th>Years of Experience</th>
+                                <th>Position</th>
+                                <th>Contract</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -366,6 +370,10 @@ const Teams = () => {
                                         <td>{player.firstname}</td>
                                         <td>{player.lastname}</td>
                                         <td>{player.jersey_num}</td>
+                                        <td>{player.status}</td>
+                                        <td>{player.yrs_of_exp}</td>
+                                        <td>{player.position}</td>
+                                        <td>{player.contract}</td>
                                         <td>
                                             <Button id={`editplayer_${player.pid}`} variant='warning' size="sm" onClick={handleEditPlayerShow}>Edit</Button>{' '}
                                             <Button id={`deleteplayer_${player.pid}`} variant='danger' size="sm">Delete</Button>{' '}
@@ -476,6 +484,26 @@ const Teams = () => {
                             <Form.Control type="text" placeholder="Enter Jersey Number" onChange={(e) => setPlayer({...player, jersey_num: e.target.value})} />
                         </Form.Group>
 
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Status</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Status" onChange={(e) => setPlayer({...player, status: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Years of Experience</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Years of Experience" onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Position</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Position" onChange={(e) => setPlayer({...player, position: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Contract</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Contract" onChange={(e) => setPlayer({...player, contract: e.target.value})} />
+                        </Form.Group>
+
                         <Button variant="primary" type="submit">
                             Save
                         </Button>
@@ -503,6 +531,26 @@ const Teams = () => {
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Jersey Number</Form.Label>
                             <Form.Control type="text" defaultValue={player.jersey_num} placeholder="Enter Jersey Number" onChange={(e) => setPlayer({...player, jersey_num: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Status</Form.Label>
+                            <Form.Control type="text" defaultValue={player.status} placeholder="Enter Status" onChange={(e) => setPlayer({...player, status: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Years of Experience</Form.Label>
+                            <Form.Control type="text" defaultValue={player.yrs_of_exp} placeholder="Enter Jersey Number" onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Position</Form.Label>
+                            <Form.Control type="text" defaultValue={player.position} placeholder="Enter Position" onChange={(e) => setPlayer({...player, position: e.target.value})} />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Contract</Form.Label>
+                            <Form.Control type="text" defaultValue={player.contract} placeholder="Enter Contract" onChange={(e) => setPlayer({...player, contract: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
