@@ -115,7 +115,7 @@ app.get('/custom', async (req, res) => {
     `;
 
     try {
-      const result = await pool.query(qry, [`%${firstname}%`, `%${lastname}%`, `%${email}% || ''`, `%${role}%`])
+      const result = await pool.query(qry, [`%${firstname||''}%`, `%${lastname||''}%`, `%${email||''}%`, `%${role||''}%`])
       res.json(result.rows)
     } catch (error) {
       console.error('Error executing queries', error);
@@ -302,7 +302,7 @@ app.get('/filter-revenue/:greater/:lower', (req, res) => {
 
 app.get('/venues', (req, res) => {
   const query = `
-    SELECT v.*, vpc.City 
+    SELECT v.*, vpc.city, vpc.province
     FROM Venue v 
     JOIN VenuePostalCode vpc ON v.postalcode = vpc.postalcode
   `

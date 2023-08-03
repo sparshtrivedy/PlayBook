@@ -76,7 +76,7 @@ const Teams = () => {
     const fetchPlayers = async (tid) => {
         setTeam(teams.filter(team => team.tid === tid)[0]);
         try {
-            const response = await axios.get(`http://localhost:5001/players/${tid}`);
+            const response = await axios.get(`http://localhost:5000/players/${tid}`);
             console.log(response.data)
             setPlayers(response.data);
         } catch (error) {
@@ -87,7 +87,7 @@ const Teams = () => {
     const handleSubmitAddTeam = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5001/add-team', team);
+            const response = await axios.post('http://localhost:5000/add-team', team);
             console.log(response);
             fetchTeams();
             handleAddTeamClose();
@@ -101,7 +101,7 @@ const Teams = () => {
         try {
             const tid = event.target.id.split('_')[1];
             setTeam(teams.filter(team => team.tid === tid)[0]);
-            const response = await axios.post(`http://localhost:5001/add-player/${tid}`, player);
+            const response = await axios.post(`http://localhost:5000/add-player/${tid}`, player);
             console.log(response);
             fetchPlayers(tid);
             handleAddPlayerClose();
@@ -115,7 +115,7 @@ const Teams = () => {
         try {
             const pid = player.pid;
             setPlayer(players.filter(player => player.pid === pid)[0]);
-            const response = await axios.put(`http://localhost:5001/update-player/${pid}`, player);
+            const response = await axios.put(`http://localhost:5000/update-player/${pid}`, player);
             console.log(response);
             fetchPlayers(player.tid);
             handleEditPlayerClose();
@@ -139,7 +139,7 @@ const Teams = () => {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get('http://localhost:5001/teams');
+            const response = await axios.get('http://localhost:5000/teams');
             setTeams(response.data);
         } catch (error) {
             console.log(error.message);
@@ -148,7 +148,7 @@ const Teams = () => {
 
     const fetchMaxAvgCoachType = async () => {
         try {
-            const response = await axios.get('http://localhost:5001/max-avg-coach-type');
+            const response = await axios.get('http://localhost:5000/max-avg-coach-type');
             setMaxAvgCoach(response.data);
         } catch (error) {
             console.log(error.message);
