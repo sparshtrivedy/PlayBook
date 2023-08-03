@@ -316,11 +316,11 @@ app.get('/venues', (req, res) => {
   });
 });
 
-//TODO: Add PostalCode/DONE
+//TODO: Add PostalCode/DONE + Add City and Province
 app.put('/update-venue', (req, res) => {
-  const {name, postalcode, capacity, vid} = req.body;
+  const {name, postalcode, capacity, city, province, vid} = req.body;
 
-  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3 WHERE vid=$4', [name, postalcode, capacity, vid], (err, result) => {
+  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3, city=$4, province=$5 WHERE vid=$6', [name, postalcode, capacity, city, province, vid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -330,12 +330,12 @@ app.put('/update-venue', (req, res) => {
   });
 });
 
-//TODO: Add Postal Code/DONE
+//TODO: Add Postal Code/DONE + Add City and Province
 app.post('/add-venue', (req, res) => {
   const vid = uuidv4();
-  const {name, postalcode, capacity} = req.body;
+  const {name, postalcode, capacity, city, province} = req.body;
 
-  pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, postalcode, capacity], (err, result) => {
+  pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4, $5, $6)', [vid, name, postalcode, capacity, city, province], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
