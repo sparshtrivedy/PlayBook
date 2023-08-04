@@ -113,7 +113,7 @@ CREATE TABLE SportsPeople (
 	firstname VARCHAR(20),
 	lastname VARCHAR(20),
 	PRIMARY KEY(pid),
-	FOREIGN KEY(tid) REFERENCES TeamManaged
+	FOREIGN KEY(tid) REFERENCES TeamManaged ON DELETE CASCADE
 );
 
 CREATE TABLE Players (
@@ -123,7 +123,7 @@ CREATE TABLE Players (
 	jersey_num INTEGER,
 	position VARCHAR(20),
 	PRIMARY KEY(pid),
-	FOREIGN KEY(pid) REFERENCES SportsPeople,
+	FOREIGN KEY(pid) REFERENCES SportsPeople ON DELETE CASCADE,
   	FOREIGN KEY(status, yrs_of_exp) REFERENCES PlayersContract(status, yrs_of_exp)
 );
 
@@ -132,7 +132,7 @@ CREATE TABLE Coach (
   	type VARCHAR(20),
 	specialization VARCHAR(20),
 	PRIMARY KEY(pid),
-	FOREIGN KEY(pid) REFERENCES SportsPeople,
+	FOREIGN KEY(pid) REFERENCES SportsPeople ON DELETE CASCADE,
   	FOREIGN KEY(type, specialization) REFERENCES CoachSalary(type, specialization)
 );
 

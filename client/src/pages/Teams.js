@@ -75,12 +75,36 @@ const Teams = () => {
         setShow(true);
     }
 
+    const handleDeleteTeam = async (event) => {
+        event.preventDefault();
+        const tid = event.target.id.split('_')[1]
+        try {
+            const response = await axios.delete(`http://localhost:5000/delete-team/${tid}`);
+            console.log(response);
+            fetchTeams();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     const handleClosePlayers = () => setShowPlayers(false);
 
     const handleShowPlayers = async (e) => {
         const tid = e.target.id.split('_')[1];
         fetchPlayers(tid);
         setShowPlayers(true);
+    }
+
+    const handlePlayerDelete = async (event) => {
+        event.preventDefault();
+        const pid = event.target.id.split('_')[1]
+        try {
+            const response = await axios.delete(`http://localhost:5000/delete-player/${pid}`);
+            console.log(response);
+            fetchPlayers();
+        } catch (error) {
+            console.log(error.message);
+        }
     }
 
     //TODO: handleCloseCoaches
@@ -291,7 +315,7 @@ const Teams = () => {
                                 <td>{team.firstname} {team.lastname}</td>
                                 <td>
                                     <Button id={`editteam_${team.tid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
-                                    <Button id={`deleteteam_${team.tid}`} variant='danger' size="sm">Delete</Button>{' '}
+                                    <Button id={`deleteteam_${team.tid}`} variant='danger' size="sm"onClick={handleDeleteTeam}>Delete</Button>{' '}
                                     <Button id={`players_${team.tid}`} variant='primary' size="sm" onClick={handleShowPlayers}>Players</Button>{' '}
                                     <Button id={`coaches_${team.tid}`} variant='primary' size="sm" onClick={handleShowCoaches}>Coaches</Button>
                                 </td>
@@ -376,7 +400,7 @@ const Teams = () => {
                                         <td>{player.contract}</td>
                                         <td>
                                             <Button id={`editplayer_${player.pid}`} variant='warning' size="sm" onClick={handleEditPlayerShow}>Edit</Button>{' '}
-                                            <Button id={`deleteplayer_${player.pid}`} variant='danger' size="sm">Delete</Button>{' '}
+                                            <Button id={`deleteplayer_${player.pid}`} variant='danger' size="sm"onClick={handlePlayerDelete}>Delete</Button>{' '}
                                         </td>
                                     </tr>
                                 )
