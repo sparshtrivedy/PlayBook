@@ -316,11 +316,11 @@ app.get('/venues', (req, res) => {
   });
 });
 
-//TODO: Add PostalCode/DONE
+//TODO: Add PostalCode/DONE + Add City and Province
 app.put('/update-venue', (req, res) => {
-  const {name, postalcode, capacity, vid} = req.body;
+  const {name, postalcode, capacity, city, province, vid} = req.body;
 
-  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3 WHERE vid=$4', [name, postalcode, capacity, vid], (err, result) => {
+  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3, city=$4, province=$5 WHERE vid=$6', [name, postalcode, capacity, city, province, vid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -330,12 +330,12 @@ app.put('/update-venue', (req, res) => {
   });
 });
 
-//TODO: Add Postal Code/DONE
+//TODO: Add Postal Code/DONE + Add City and Province
 app.post('/add-venue', (req, res) => {
   const vid = uuidv4();
-  const {name, postalcode, capacity} = req.body;
+  const {name, postalcode, capacity, city, province} = req.body;
 
-  pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, postalcode, capacity], (err, result) => {
+  pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4, $5, $6)', [vid, name, postalcode, capacity, city, province], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -386,12 +386,33 @@ app.get('/games', async (req, res) => {
   }
 });
 
+app.get('/biggest-fan', async (req, res) => {
+  const query = `
+  SELECT a.aid, a.firstname, a.lastname
+  FROM Attendee a
+  WHERE NOT EXISTS((
+    SELECT g.gid
+    FROM Game g
+    ) EXCEPT (
+      SELECT t.gid
+      FROM Ticket t
+      WHERE t.aid=a.aid
+  ))`
+
+  pool.query(query, (err, result) => {
+    if (err) {
+      console.error('Error executing query', err);
+      res.status(500).send('Error retrieving biggest fan');
+    } else {
+      res.json(result.rows);
+    }
+  });
+})
+
 app.get('/filtered-games/:after/:before', async (req, res) => {
   const after = req.params['after'];
   const before = req.params['before'];
 
-  console.log(after)
-  console.log(before)
   const query = `
     SELECT CAST(g.date AS VARCHAR(20)), g.sport, t1.name AS home, t2.name AS away, g.start_time, g.end_time, v.name AS venue, vpc.city, v.capacity, u.firstname AS admin_firstname, u.lastname AS admin_lastname, g.gid, g.vid, g.home_tid, g.away_tid, g.uid
     FROM Game g 
@@ -460,11 +481,23 @@ app.put('/add-game', async (req, res) => {
 
 app.get('/players/:tid', (req, res) => {
   const tid = req.params['tid'];
-
-  pool.query('SELECT sp.*, p.jersey_num FROM SportsPeople sp LEFT JOIN Players p ON sp.pid = p.pid WHERE tid = $1', [tid], (err, result) => {
+  pool.query('SELECT sp.*, p.*, pc.contract FROM SportsPeople sp JOIN Players p ON sp.pid = p.pid JOIN PlayersContract pc ON p.yrs_of_exp = pc.yrs_of_exp AND p.status = pc.status WHERE tid = $1', [tid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+//TODO: Get Coaches
+app.get('/coaches/:tid', (req, res) => {
+  const tid = req.params['tid'];
+  pool.query('SELECT sp.*, c.type, c.specialization FROM SportsPeople sp JOIN Coach c ON sp.pid = c.pid WHERE tid = $1', [tid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving coaches');
       } else {
         res.json(result.rows);
       }
@@ -487,9 +520,9 @@ app.get('/sponsors/:vid', async (req, res) => {
 app.post('/add-player/:tid', (req, res) => {
   const pid = uuidv4(); 
   const tid = req.params['tid'];
-  const {firstname, lastname, number} = req.body;
+  const {firstname, lastname, number, pstatus, yrsofexp, position, contract} = req.body;
 
-  pool.query('INSERT INTO Player VALUES ($1, $2, $3, $4, $5)', [pid, tid, firstname, lastname, number], (err, result) => {
+  pool.query('INSERT INTO Player VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [pid, tid, firstname, lastname, number, pstatus, yrsofexp, position, contract], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
@@ -501,12 +534,43 @@ app.post('/add-player/:tid', (req, res) => {
 
 app.put('/update-player/:pid', (req, res) => {
   const pid = req.params['pid'];
-  const {firstname, lastname, number, tid} = req.body;
+  const {firstname, lastname, number, pstatus, yrsofexp, position, contract, tid} = req.body;
 
-  pool.query('UPDATE Player SET firstname = $1, lastname = $2, number = $3, TID = $4 WHERE PID = $5', [firstname, lastname, number, tid, pid], (err, result) => {
+  pool.query('UPDATE Player SET firstname = $1, lastname = $2, number = $3, pstatus = $4, yrsofexp = $5, position = $6, contract = $7, TID = $8 WHERE PID = $9', [firstname, lastname, number, pstatus, yrsofexp, position, contract, tid, pid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+//TODO: Add Coach
+app.post('/add-coach/:tid', (req, res) => {
+  const pid = uuidv4(); 
+  const tid = req.params['tid'];
+  const {firstname, lastname, type, specialization} = req.body;
+
+  pool.query('INSERT INTO Coach VALUES ($1, $2, $3, $4, $5)', [pid, tid, firstname, lastname, type, specialization], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving players');
+      } else {
+        res.json(result.rows);
+      }
+  });
+});
+
+//TODO: Update Coach
+app.put('/update-coach/:pid', (req, res) => {
+  const pid = req.params['pid'];
+  const {firstname, lastname, type, specialization, tid} = req.body;
+
+  pool.query('UPDATE Coach SET firstname = $1, lastname = $2, type = $3, specialization = $4, TID = $5 WHERE PID = $6', [firstname, lastname, type, specialization, tid, pid], (err, result) => {
+      if (err) {
+        console.error('Error executing query', err);
+        res.status(500).send('Error retrieving coaches');
       } else {
         res.json(result.rows);
       }
@@ -589,6 +653,8 @@ app.delete('/delete-game/:gid', (req, res) => {
 //DELETE VENUES
 
 //DELETE PLAYERS
+
+//DELETE COACHES
 
 //DELETE TEAM
 app.put('/delete-team', authenticateJWT, async (req, res) => {

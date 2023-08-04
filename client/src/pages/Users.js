@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Button, Offcanvas, Form, Badge, Modal, Row, Col } from 'react-bootstrap';
+import { FaFilter } from 'react-icons/fa6'
 import axios from 'axios';
 
 const Users = () => {
@@ -161,7 +162,9 @@ const Users = () => {
             </Table>
 
             <Button variant='outline-success' onClick={handleAddUserShow}>+ Add New User</Button>
-            <Button variant="success" className="m-3" onClick={handleShowModal}>Filter Columns</Button>
+            <Button variant="outline-primary" className="m-3" onClick={handleShowModal}>
+                <span className='d-flex justify-content-center align-items-center'><FaFilter className='mx-2'/>Filter Columns</span>
+            </Button>
 
             <Modal show={showModal} onHide={handleCloseModal}>
                 <Modal.Header closeButton>
