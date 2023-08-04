@@ -575,6 +575,17 @@ app.delete('/delete-user/:uid', (req, res) => {
 });
 //DELETE GAMES
 
+app.delete('/delete-game/:gid', (req, res) => {
+  const gid = req.params['gid'];
+
+  pool.query('DELETE FROM game WHERE gid = $1', [gid], (error, results) => {
+      if (error) {
+          throw error;
+      }
+      res.status(200).send(`Game deleted with id: ${gid}`)
+  });
+});
+
 //DELETE VENUES
 
 //DELETE PLAYERS

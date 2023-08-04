@@ -83,6 +83,18 @@ const Games = () => {
         setShow(true);
     }
 
+    const handleDeleteGame = async (event) => {
+        event.preventDefault();
+        const gid = event.target.id.split('_')[1]
+        try {
+            const response = await axios.delete(`http://localhost:5000/delete-game/${gid}`);
+            console.log(response);
+            fetchGames();
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     const handleShowAttendees = async (e) => {
         const gid = e.target.id.split('_')[1];
         setGame(games.filter(game => game.gid === gid)[0])
@@ -260,7 +272,7 @@ const Games = () => {
                                 {game.admin_firstname && <td>{game.admin_firstname} {game.admin_lastname}</td>}
                                 <td>
                                     <Button id={`editgame_${game.gid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
-                                    <Button id={`deletegame_${game.gid}`} variant='danger' size="sm">Delete</Button>{' '}
+                                    <Button id={`deletegame_${game.gid}`} variant='danger' size="sm"onClick={handleDeleteGame}>Delete</Button>{' '}
                                     <Button id={`attendees_${game.gid}`} variant='primary' size="sm" onClick={handleShowAttendees}>Attendees</Button>
                                 </td>
                             </tr>
