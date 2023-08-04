@@ -653,14 +653,24 @@ app.delete('/delete-game/:gid', (req, res) => {
 //DELETE VENUES
 
 //DELETE PLAYERS
+app.delete('/delete-player/:pid', async (req, res) => {
+  const pid = req.params['pid'];
+
+  pool.query('DELETE FROM sportspeople WHERE pid = $1', [pid], (error, results) => {
+      if (error) {
+          throw error;
+      }
+      res.status(200).send(`Player deleted with id: ${pid}`)
+  });
+});
 
 //DELETE COACHES
 
 //DELETE TEAM
-app.put('/delete-team', authenticateJWT, async (req, res) => {
-  const tid = req.team.TID;
+app.delete('/delete-team/:tid', async (req, res) => {
+  const tid = req.params['tid'];
 
-  pool.query('DELETE FROM Team WHERE TID = $1', [tid], (error, results) => {
+  pool.query('DELETE FROM teammanaged WHERE tid = $1', [tid], (error, results) => {
       if (error) {
           throw error;
       }
