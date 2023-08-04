@@ -425,6 +425,7 @@ const Teams = () => {
                                 <th>Last Name</th>
                                 <th>Type</th>
                                 <th>Specialization</th>
+                                <th>Salary</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -436,6 +437,7 @@ const Teams = () => {
                                         <td>{coach.lastname}</td>
                                         <td>{coach.type}</td>
                                         <td>{coach.specialization}</td>
+                                        <td>{coach.salary}</td>
                                         <td>
                                             <Button id={`editcoach_${coach.pid}`} variant='warning' size="sm" onClick={handleEditCoachShow}>Edit</Button>{' '}
                                             <Button id={`deletecoach_${coach.pid}`} variant='danger' size="sm">Delete</Button>{' '}
@@ -621,6 +623,11 @@ const Teams = () => {
                             <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setCoach({...coach, specialization: e.target.value})} />
                         </Form.Group>
 
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Salary</Form.Label>
+                            <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setCoach({...coach, salary: e.target.value})} />
+                        </Form.Group>
+
                         <Button variant="primary" type="submit">
                             Save
                         </Button>
@@ -654,6 +661,12 @@ const Teams = () => {
                             <Form.Label>Specialization</Form.Label>
                             <Form.Control type="text" defaultValue={coach.specialization} placeholder="Enter Specialization" onChange={(e) => setCoach({...coach, specialization: e.target.value})} />
                         </Form.Group>
+
+                        <Form.Group className="mb-3" controlId="formBasicPassword">
+                            <Form.Label>Salary</Form.Label>
+                            <Form.Control type="text" defaultValue={coach.salary} placeholder="Enter Salary" onChange={(e) => setCoach({...coach, salary: e.target.value})} />
+                        </Form.Group>
+
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Team</Form.Label>
