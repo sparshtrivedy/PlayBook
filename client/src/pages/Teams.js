@@ -21,6 +21,8 @@ const Teams = () => {
     const [showEditCoach, setShowEditCoach] = useState(false);
     const [maxAvgCoach, setMaxAvgCoach] = useState([]);
     const [showCoach, setShowCoach] = useState(false);
+    const [exp, setExp] = useState([])
+    const [status, setStatus] = useState([])
 
     const handleMaxAvgCoachType = async (e) => {
         fetchMaxAvgCoachType();
@@ -54,7 +56,6 @@ const Teams = () => {
 
     const handleEditPlayerShow = async (e) => {
         const pid = e.target.id.split('_')[1]
-        console.log(pid)
         setPlayer(players.filter(player => player.pid === pid)[0])
         setShowEditPlayer(true);
     }
@@ -62,7 +63,6 @@ const Teams = () => {
     //TODO: handleEditCoachShow
     const handleEditCoachShow = async (e) => {
         const pid = e.target.id.split('_')[1]
-        console.log(pid)
         setCoach(coaches.filter(coach => coach.pid === pid)[0])
         setShowEditCoach(true);
     }
@@ -136,8 +136,17 @@ const Teams = () => {
         setTeam(teams.filter(team => team.tid === tid)[0]);
         try {
             const response = await axios.get(`http://localhost:5000/players/${tid}`);
-            console.log(response.data)
             setPlayers(response.data);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    const fetchPlayerContracts = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/players-contract');
+            setExp(response.data.yrs_of_exp);
+            setStatus(response.data.status);
         } catch (error) {
             console.log(error.message);
         }
@@ -148,7 +157,6 @@ const Teams = () => {
         setTeam(teams.filter(team => team.tid === tid)[0]);
         try {
             const response = await axios.get(`http://localhost:5000/coaches/${tid}`);
-            console.log(response.data)
             setCoaches(response.data);
         } catch (error) {
             console.log(error.message);
@@ -259,6 +267,7 @@ const Teams = () => {
     useEffect(() => {
         fetchTeams();
         fetchUsers();
+        fetchPlayerContracts();
     }, [])
 
     return (
@@ -512,22 +521,27 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Status</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Status" onChange={(e) => setPlayer({...player, status: e.target.value})} />
+                            <Form.Select onChange={(e) => setPlayer({...player, status: e.target.value})}>
+                                <option>Select Status</option>
+                                {status && status.map(ctr => {
+                                    return <option key={ctr.status} value={ctr.status}>{ctr.status}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Years of Experience</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Years of Experience" onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})} />
+                            <Form.Select onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})}>
+                                <option>Select Years of Experience</option>
+                                {exp && exp.map(ctr => {
+                                    return <option key={ctr.yrs_of_exp} value={ctr.yrs_of_exp}>{ctr.yrs_of_exp}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Position</Form.Label>
                             <Form.Control type="text" placeholder="Enter Position" onChange={(e) => setPlayer({...player, position: e.target.value})} />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Contract</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Contract" onChange={(e) => setPlayer({...player, contract: e.target.value})} />
                         </Form.Group>
 
                         <Button variant="primary" type="submit">
@@ -561,22 +575,27 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Status</Form.Label>
-                            <Form.Control type="text" defaultValue={player.status} placeholder="Enter Status" onChange={(e) => setPlayer({...player, status: e.target.value})} />
+                            <Form.Select defaultValue={player.status} onChange={(e) => setPlayer({...player, status: e.target.value})}>
+                                <option>Select Status</option>
+                                {status && status.map(ctr => {
+                                    return <option key={ctr.status} value={ctr.status}>{ctr.status}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Years of Experience</Form.Label>
-                            <Form.Control type="text" defaultValue={player.yrs_of_exp} placeholder="Enter Jersey Number" onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})} />
+                            <Form.Select defaultValue={player.yrs_of_exp} onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})}>
+                                <option>Select Years of Experience</option>
+                                {exp && exp.map(ctr => {
+                                    return <option key={ctr.yrs_of_exp} value={ctr.yrs_of_exp}>{ctr.yrs_of_exp}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Position</Form.Label>
                             <Form.Control type="text" defaultValue={player.position} placeholder="Enter Position" onChange={(e) => setPlayer({...player, position: e.target.value})} />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Contract</Form.Label>
-                            <Form.Control type="text" defaultValue={player.contract} placeholder="Enter Contract" onChange={(e) => setPlayer({...player, contract: e.target.value})} />
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">

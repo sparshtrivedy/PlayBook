@@ -517,33 +517,54 @@ app.get('/sponsors/:vid', async (req, res) => {
   });
 });
 
-app.post('/add-player/:tid', (req, res) => {
+app.get('/players-contract', async (req, res) => {
+
+  try {
+    const yrs_of_exp = await pool.query('SELECT DISTINCT yrs_of_exp FROM PlayersContract');
+
+    const status = await pool.query('SELECT DISTINCT status FROM PlayersContract');
+
+    res.json({ yrs_of_exp: yrs_of_exp.rows, status: status.rows });
+  } catch (err) {
+    console.error('Error executing queries', err);
+    res.status(500).send('Error inserting into database');
+    res.status(500).send('Error inserting game into database');
+  }
+})
+
+app.post('/add-player/:tid', async (req, res) => {
   const pid = uuidv4(); 
   const tid = req.params['tid'];
-  const {firstname, lastname, number, pstatus, yrsofexp, position, contract} = req.body;
+  const {firstname, lastname, jersey_num, position, status, yrs_of_exp} = req.body;
 
-  pool.query('INSERT INTO Player VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)', [pid, tid, firstname, lastname, number, pstatus, yrsofexp, position, contract], (err, result) => {
-      if (err) {
-        console.error('Error executing query', err);
-        res.status(500).send('Error retrieving players');
-      } else {
-        res.json(result.rows);
-      }
-  });
+  try {
+    const addSportsPersonResult = await pool.query('INSERT INTO SportsPeople VALUES ($1, $2, $3, $4)', [pid, tid, firstname, lastname]);
+
+    const addPlayerResult = await pool.query('INSERT INTO Players VALUES ($1, $2, $3, $4, $5)', [pid, status, yrs_of_exp, jersey_num, position]);
+
+    res.json({ sportsPeople: addSportsPersonResult.rows, players: addPlayerResult.rows });
+  } catch (err) {
+    console.error('Error executing queries', err);
+    res.status(500).send('Error inserting into database');
+    res.status(500).send('Error inserting game into database');
+  }
 });
 
-app.put('/update-player/:pid', (req, res) => {
+app.put('/update-player/:pid', async (req, res) => {
   const pid = req.params['pid'];
-  const {firstname, lastname, number, pstatus, yrsofexp, position, contract, tid} = req.body;
+  const {firstname, lastname, jersey_num, position, status, yrs_of_exp, tid} = req.body;
 
-  pool.query('UPDATE Player SET firstname = $1, lastname = $2, number = $3, pstatus = $4, yrsofexp = $5, position = $6, contract = $7, TID = $8 WHERE PID = $9', [firstname, lastname, number, pstatus, yrsofexp, position, contract, tid, pid], (err, result) => {
-      if (err) {
-        console.error('Error executing query', err);
-        res.status(500).send('Error retrieving players');
-      } else {
-        res.json(result.rows);
-      }
-  });
+  try {
+    const updateSportsPersonResult = await pool.query('UPDATE SportsPeople SET firstname=$1, lastname=$2, tid=$3 WHERE pid=$4', [firstname, lastname, tid, pid]);
+    
+    const updatePlayerResult = await pool.query('UPDATE Players SET status=$1, yrs_of_exp=$2, jersey_num=$3, position=$4 WHERE pid=$5', [status, yrs_of_exp, jersey_num, position, pid]);
+
+    res.json({ sportsPeople: updateSportsPersonResult.rows, players: updatePlayerResult.rows });
+  } catch (err) {
+    console.error('Error executing queries', err);
+    res.status(500).send('Error updating database');
+    res.status(500).send('Error updating player');
+  }
 });
 
 //TODO: Add Coach
