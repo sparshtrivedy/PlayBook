@@ -292,7 +292,7 @@ const Teams = () => {
                                 <td>
                                     <Button id={`editteam_${team.tid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
                                     <Button id={`deleteteam_${team.tid}`} variant='danger' size="sm">Delete</Button>{' '}
-                                    <Button id={`players_${team.tid}`} variant='primary' size="sm" onClick={handleShowPlayers}>Players</Button>
+                                    <Button id={`players_${team.tid}`} variant='primary' size="sm" onClick={handleShowPlayers}>Players</Button>{' '}
                                     <Button id={`coaches_${team.tid}`} variant='primary' size="sm" onClick={handleShowCoaches}>Coaches</Button>
                                 </td>
                             </tr>
