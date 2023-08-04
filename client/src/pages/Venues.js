@@ -18,6 +18,8 @@ const Venues = () => {
 
     const handleClose = () => setShow(false);
 
+    const handleAddVenueClose = () => setShowAddVenue(false);
+
     const handleSponsorsShow = async (e) => {
         const vid = e.target.id.split('_')[1];
         setVenue(venues.filter(venue => venue.vid === vid)[0]);
@@ -46,6 +48,19 @@ const Venues = () => {
     }
 
     const handleAddClose = () => setShowAddVenue(false);
+
+    // const handleDeleteVenue = async (event) => {
+    //     event.preventDefault();
+    //     const vid = event.target.id.split('_')[1]
+    //     try {
+    //         const response = await axios.delete(`http://localhost:5000/delete-venue/${vid}`);
+    //         console.log(response);
+    //         fetchVenues();
+    //         handleAddVenueClose();
+    //     } catch (error) {
+    //         console.log(error.message);
+    //     }
+    // }
 
     const fetchVenues = async () => {
         try {
@@ -108,7 +123,7 @@ const Venues = () => {
                                 <td>{venue.capacity}</td>
                                 <td>
                                     <Button id={`editvenue_${venue.vid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
-                                    <Button id={`deletevenue_${venue.vid}`} variant='danger' size="sm">Delete</Button>{' '}
+                                    {/* <Button id={`deletevenue_${venue.vid}`} variant='danger' size="sm" onClick={handleDeleteVenue}>Delete</Button>{' '} */}
                                     <Button id={`viewsponsors_${venue.vid}`} variant='primary' size="sm" onClick={handleSponsorsShow}>Sponsors</Button>
                                 </td>
                             </tr>
