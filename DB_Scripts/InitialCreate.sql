@@ -75,7 +75,7 @@ CREATE TABLE SponsorVenue (
 	contribution MONEY,
 	PRIMARY KEY(sid, vid),
 	FOREIGN KEY(sid) REFERENCES Sponsor,
-	FOREIGN KEY(vid) REFERENCES Venue,
+	FOREIGN KEY(vid) REFERENCES Venue ON DELETE CASCADE,
 	FOREIGN KEY(contribution) REFERENCES SponsorVenueContribution
 );
 
