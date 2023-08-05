@@ -532,12 +532,7 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Years of Experience</Form.Label>
-                            <Form.Select onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})}>
-                                <option>Select Years of Experience</option>
-                                {exp && exp.map(ctr => {
-                                    return <option key={ctr.yrs_of_exp} value={ctr.yrs_of_exp}>{ctr.yrs_of_exp}</option>
-                                })}
-                            </Form.Select>
+                            <Form.Control type="text" placeholder="Enter Years of Experience" onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})} />               
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -585,13 +580,8 @@ const Teams = () => {
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Years of Experience</Form.Label>
-                            <Form.Select defaultValue={player.yrs_of_exp} onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})}>
-                                <option>Select Years of Experience</option>
-                                {exp && exp.map(ctr => {
-                                    return <option key={ctr.yrs_of_exp} value={ctr.yrs_of_exp}>{ctr.yrs_of_exp}</option>
-                                })}
-                            </Form.Select>
+                        <Form.Label>Years of Experience</Form.Label>
+                        <Form.Control type="text" defaultValue={player.yrs_of_exp}placeholder="Enter Years of Experience" onChange={(e) => setPlayer({...player, yrs_of_exp: e.target.value})} />    
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
