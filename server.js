@@ -672,17 +672,17 @@ app.delete('/delete-game/:gid', (req, res) => {
   });
 });
 
-//DELETE VENUES
-// app.delete('/delete-venue/:vid', async (req, res) => {
-//   const pid = req.params['vid'];
 
-//   pool.query('DELETE FROM Venue WHERE vid = $1', [vid], (error, results) => {
-//       if (error) {
-//           throw error;
-//       }
-//       res.status(200).send(`Venue deleted with id: ${vid}`)
-//   });
-// });
+app.delete('/delete-venue/:vid', async (req, res) => {
+  const vid = req.params['vid'];
+
+  pool.query('DELETE FROM Venue WHERE vid = $1', [vid], (error, results) => {
+      if (error) {
+          throw error;
+      }
+      res.status(200).send(`Venue deleted with id: ${vid}`)
+  });
+});
 
 //DELETE PLAYERS
 app.delete('/delete-player/:pid', async (req, res) => {
