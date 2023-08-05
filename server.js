@@ -738,6 +738,16 @@ app.delete('/delete-player/:pid', async (req, res) => {
 });
 
 //DELETE COACHES
+app.delete('/delete-coach/:pid', async (req, res) => {
+  const pid = req.params['pid'];
+
+  pool.query('DELETE FROM sportspeople WHERE pid = $1', [pid], (error, results) => {
+      if (error) {
+          throw error;
+      }
+      res.status(200).send(`Coach deleted with id: ${pid}`)
+  });
+});
 
 //DELETE TEAM
 app.delete('/delete-team/:tid', async (req, res) => {

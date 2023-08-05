@@ -108,6 +108,19 @@ const Teams = () => {
         }
     }
 
+    const handleCoachDelete = async (event) => {
+        event.preventDefault();
+        const pid = event.target.id.split('_')[1];
+        const tid = team.tid;
+        try {
+            const response = await axios.delete(`http://localhost:5000/delete-coach/${pid}`);
+            console.log(response);
+            fetchCoaches(tid);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     //TODO: handleCloseCoaches
     const handleCloseCoaches = () => setShowCoaches(false);
 
@@ -450,7 +463,7 @@ const Teams = () => {
                                         <td>{coach.salary}</td>
                                         <td>
                                             <Button id={`editcoach_${coach.pid}`} variant='warning' size="sm" onClick={handleEditCoachShow}>Edit</Button>{' '}
-                                            <Button id={`deletecoach_${coach.pid}`} variant='danger' size="sm">Delete</Button>{' '}
+                                            <Button id={`deletecoach_${coach.pid}`} variant='danger' size="sm" onClick={handleCoachDelete}>Delete</Button>{' '}
                                         </td>
                                     </tr>
                                 )
