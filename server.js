@@ -546,7 +546,7 @@ app.post('/add-player/:tid', async (req, res) => {
   } catch (err) {
     console.error('Error executing queries', err);
     res.status(500).send('Error inserting into database');
-    res.status(500).send('Error inserting game into database');
+    res.status(500).send('Error inserting player into database');
   }
 });
 
@@ -590,15 +590,6 @@ app.post('/add-coach/:tid', async (req, res) => {
   const tid = req.params['tid'];
   const {firstname, lastname, type, specialization} = req.body;
 
-//   pool.query('INSERT INTO Coach VALUES ($1, $2, $3, $4, $5)', [pid, tid, firstname, lastname, type, specialization], (err, result) => {
-//       if (err) {
-//         console.error('Error executing query', err);
-//         res.status(500).send('Error retrieving players');
-//       } else {
-//         res.json(result.rows);
-//       }
-//   });
-// });
 try {
   const addSportsPersonResult = await pool.query('INSERT INTO SportsPeople VALUES ($1, $2, $3, $4)', [pid, tid, firstname, lastname]);
 
@@ -608,7 +599,7 @@ try {
 } catch (err) {
   console.error('Error executing queries', err);
   res.status(500).send('Error inserting into database');
-  res.status(500).send('Error inserting game into database');
+  res.status(500).send('Error inserting coach into database');
 }
 });
 
@@ -617,19 +608,10 @@ app.put('/update-coach/:pid', async (req, res) => {
   const pid = req.params['pid'];
   const {firstname, lastname, type, specialization, tid} = req.body;
 
-//   pool.query('UPDATE Coach SET firstname = $1, lastname = $2, type = $3, specialization = $4, salary = $5, TID = $6 WHERE PID = $7', [firstname, lastname, type, specialization, salary, tid, pid], (err, result) => {
-//       if (err) {
-//         console.error('Error executing query', err);
-//         res.status(500).send('Error retrieving coaches');
-//       } else {
-//         res.json(result.rows);
-//       }
-//   });
-// });
 try {
   const updateSportsPersonResult = await pool.query('UPDATE SportsPeople SET firstname=$1, lastname=$2, tid=$3 WHERE pid=$4', [firstname, lastname, tid, pid]);
 
-  const updateCoachResult = await pool.query('UPDATE Coach SET type=$1, specialization=$2, WHERE pid=$3', [type, specialization, pid]);
+  const updateCoachResult = await pool.query('UPDATE Coach SET type=$1, specialization=$2 WHERE pid=$3', [type, specialization, pid]);
 
   res.json({ sportsPeople: updateSportsPersonResult.rows, coaches: updateCoachResult.rows });
 } catch (err) {

@@ -23,6 +23,8 @@ const Teams = () => {
     const [showCoach, setShowCoach] = useState(false);
     const [exp, setExp] = useState([])
     const [status, setStatus] = useState([])
+    const [type, setType] = useState([])
+    const [specialization, setSpecialization] = useState([])
 
     const handleMaxAvgCoachType = async (e) => {
         fetchMaxAvgCoachType();
@@ -43,15 +45,12 @@ const Teams = () => {
 
     const handleEditPlayerClose = () => setShowEditPlayer(false);
 
-    //TODO: handleAddCoachClose
     const handleAddCoachClose = () => setShowAddCoach(false);
 
-    //TODO: handleAddCoachShow
     const handleAddCoachShow = async (e) => {
         setShowAddCoach(true);
     }
 
-    //TODO: handleEditCoachClose
     const handleEditCoachClose = () => setShowEditCoach(false);
 
     const handleEditPlayerShow = async (e) => {
@@ -60,7 +59,6 @@ const Teams = () => {
         setShowEditPlayer(true);
     }
 
-    //TODO: handleEditCoachShow
     const handleEditCoachShow = async (e) => {
         const pid = e.target.id.split('_')[1]
         setCoach(coaches.filter(coach => coach.pid === pid)[0])
@@ -121,10 +119,8 @@ const Teams = () => {
         }
     }
 
-    //TODO: handleCloseCoaches
     const handleCloseCoaches = () => setShowCoaches(false);
 
-    //TODO: handleShowCoaches
     const handleShowCoaches = async (e) => {
         const tid = e.target.id.split('_')[1];
         fetchCoaches(tid);
@@ -177,6 +173,16 @@ const Teams = () => {
         }
     }
 
+    const fetchCoachSalary = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/coach-salary');
+            setType(response.data.type);
+            setSpecialization(response.data.specialization);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     const handleSubmitAddTeam = async (event) => {
         event.preventDefault();
         try {
@@ -217,7 +223,6 @@ const Teams = () => {
         }
     }
 
-    //TODO: handleSubmitAddCoach
     const handleSubmitAddCoach = async (event) => {
         event.preventDefault();
         try {
@@ -232,12 +237,11 @@ const Teams = () => {
         }
     }
 
-    //TODO: handleSubmitUpdateCoach
     const handleSubmitUpdateCoach = async (event) => {
         event.preventDefault();
         try {
             const pid = coach.pid;
-            setCoach(coach.filter(coach => coach.pid === pid)[0]);
+            setCoach(coaches.filter(coach => coach.pid === pid)[0]);
             const response = await axios.put(`http://localhost:5000/update-coach/${pid}`, coach);
             console.log(response);
             fetchCoaches(coach.tid);
@@ -282,6 +286,7 @@ const Teams = () => {
         fetchTeams();
         fetchUsers();
         fetchPlayerContracts();
+        fetchCoachSalary();
     }, [])
 
     return (
@@ -648,17 +653,22 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Type</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setCoach({...coach, type: e.target.value})} />
+                            <Form.Select onChange={(e) => setCoach({...coach, type: e.target.value})}>
+                                <option>Select Type</option>
+                                {type && type.map(ctr => {
+                                    return <option key={ctr.type} value={ctr.type}>{ctr.type}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Specialization</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setCoach({...coach, specialization: e.target.value})} />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Salary</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Type" onChange={(e) => setCoach({...coach, salary: e.target.value})} />
+                            <Form.Select onChange={(e) => setCoach({...coach, specialization: e.target.value})}>
+                                <option>Select Specialization</option>
+                                {specialization && specialization.map(ctr => {
+                                    return <option key={ctr.specialization} value={ctr.specialization}>{ctr.specialization}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Button variant="primary" type="submit">
@@ -687,19 +697,23 @@ const Teams = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Type</Form.Label>
-                            <Form.Control type="text" defaultValue={coach.type} placeholder="Enter Type" onChange={(e) => setCoach({...coach, type: e.target.value})} />
+                            <Form.Select defaultValue={coach.type} onChange={(e) => setCoach({...coach, type: e.target.value})}>
+                                <option>Select Type</option>
+                                {type && type.map(ctr => {
+                                    return <option key={ctr.type} value={ctr.type}>{ctr.type}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Specialization</Form.Label>
-                            <Form.Control type="text" defaultValue={coach.specialization} placeholder="Enter Specialization" onChange={(e) => setCoach({...coach, specialization: e.target.value})} />
+                            <Form.Select defaultValue={coach.specialization} onChange={(e) => setCoach({...coach, specialization: e.target.value})}>
+                                <option>Select Specialization</option>
+                                {specialization && specialization.map(ctr => {
+                                    return <option key={ctr.specialization} value={ctr.specialization}>{ctr.specialization}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Salary</Form.Label>
-                            <Form.Control type="text" defaultValue={coach.salary} placeholder="Enter Salary" onChange={(e) => setCoach({...coach, salary: e.target.value})} />
-                        </Form.Group>
-
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Team</Form.Label>
