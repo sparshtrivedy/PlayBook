@@ -346,10 +346,10 @@ app.put('/update-venue', (req, res) => {
 //TODO: Add Postal Code/DONE + Add City and Province
 app.post('/add-venue', async (req, res) => {
   const vid = uuidv4();
-  const {name, postalcode, capacity} = req.body;
+  const {name, capacity, postalcode} = req.body;
 
   try {
-    const addVenueResult = await pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, postalcode, capacity]);
+    const addVenueResult = await pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, capacity, postalcode]);
     res.json(addVenueResult.rows);
   } catch (err) {
     console.error('Error executing queries', err);
