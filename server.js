@@ -618,6 +618,25 @@ app.post('/add-player/:tid', async (req, res) => {
   const pid = uuidv4(); 
   const tid = req.params['tid'];
   const {firstname, lastname, jersey_num, position, status, yrs_of_exp} = req.body;
+  try{
+    if(status == "Rookie") {
+      const contract = 100000 * yrs_of_exp + 20000;
+      const addPlayerContract = await pool.query('INSERT INTO PlayersContract VALUES ($1, $2, $3)', [yrs_of_exp, status, contract]);
+     
+    } 
+    if(status == "Seasoned") {
+      const contract = 150000 * yrs_of_exp + 30000;
+      const addPlayerContract = await pool.query('INSERT INTO PlayersContract VALUES ($1, $2, $3)', [yrs_of_exp, status, contract]);
+     
+    }
+    if(status == "All-Star") {
+      const contract = 200000 * yrs_of_exp + 50000;
+      const addPlayerContract = await pool.query('INSERT INTO PlayersContract VALUES ($1, $2, $3)', [yrs_of_exp, status, contract]);
+     
+    }
+  } catch (err) {
+
+  }
 
   try {
     const addSportsPersonResult = await pool.query('INSERT INTO SportsPeople VALUES ($1, $2, $3, $4)', [pid, tid, firstname, lastname]);
@@ -636,6 +655,25 @@ app.post('/add-player/:tid', async (req, res) => {
 app.put('/update-player/:pid', async (req, res) => {
   const pid = req.params['pid'];
   const {firstname, lastname, jersey_num, position, status, yrs_of_exp, tid} = req.body;
+  try{
+    if(status == "Rookie") {
+      const contract = 100000 * yrs_of_exp + 20000;
+      const addPlayerContract = await pool.query('INSERT INTO PlayersContract VALUES ($1, $2, $3)', [yrs_of_exp, status, contract]);
+     
+    } 
+    if(status == "Seasoned") {
+      const contract = 150000 * yrs_of_exp + 30000;
+      const addPlayerContract = await pool.query('INSERT INTO PlayersContract VALUES ($1, $2, $3)', [yrs_of_exp, status, contract]);
+     
+    }
+    if(status == "All-Star") {
+      const contract = 200000 * yrs_of_exp + 50000;
+      const addPlayerContract = await pool.query('INSERT INTO PlayersContract VALUES ($1, $2, $3)', [yrs_of_exp, status, contract]);
+     
+    }
+  } catch (err) {
+
+  }
 
   try {
     const updateSportsPersonResult = await pool.query('UPDATE SportsPeople SET firstname=$1, lastname=$2, tid=$3 WHERE pid=$4', [firstname, lastname, tid, pid]);
