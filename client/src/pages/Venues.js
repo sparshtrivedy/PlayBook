@@ -9,6 +9,7 @@ const Venues = () => {
     const [sponsors, setSponsors] = useState([]);
     const [showAddVenue, setShowAddVenue] = useState(false);
     const [showSponsors, setShowSponsors] = useState(false);
+    const [postalcode, setPostalCode] = useState(false);
 
     const handleShow = async (e) => {
         const vid = e.target.id.split('_')[1];
@@ -71,6 +72,16 @@ const Venues = () => {
         }
     }
 
+    const fetchVenuePostalCode = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/venue-postal-code');
+            setPostalCode(response.data.postalcode);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
@@ -97,6 +108,7 @@ const Venues = () => {
 
     useEffect(() => {
         fetchVenues();
+        fetchVenuePostalCode();
     }, []);
 
     return (
@@ -147,17 +159,12 @@ const Venues = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Postal Code</Form.Label>
-                            <Form.Control defaultValue={venue.postalcode} type="text" placeholder="Enter Postal Code" onChange={(e) => setVenue({...venue, postalcode: e.target.value})} />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>City</Form.Label>
-                            <Form.Control defaultValue={venue.city} type="text" placeholder="Enter City" onChange={(e) => setVenue({...venue, city: e.target.value})} />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Province</Form.Label>
-                            <Form.Control defaultValue={venue.province} type="text" placeholder="Enter Province" onChange={(e) => setVenue({...venue, province: e.target.value})} />
+                            <Form.Select onChange={(e) => setVenue({...venue, postalcode: e.target.value})}>
+                                <option>Select Postal Code</option>
+                                {postalcode && postalcode.map(ctr => {
+                                    return <option key={ctr.postalcode} value={ctr.postalcode}>{ctr.postalcode}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
@@ -185,17 +192,12 @@ const Venues = () => {
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">
                             <Form.Label>Postal Code</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Postal Code" onChange={(e) => setVenue({...venue, postalcode: e.target.value})} />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>City</Form.Label>
-                            <Form.Control type="text" placeholder="Enter City" onChange={(e) => setVenue({...venue, city: e.target.value})} />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3" controlId="formBasicPassword">
-                            <Form.Label>Province</Form.Label>
-                            <Form.Control type="text" placeholder="Enter Province" onChange={(e) => setVenue({...venue, province: e.target.value})} />
+                            <Form.Select onChange={(e) => setVenue({...venue, postalcode: e.target.value})}>
+                                <option>Select Postal Code</option>
+                                {postalcode && postalcode.map(ctr => {
+                                    return <option key={ctr.postalcode} value={ctr.postalcode}>{ctr.postalcode}</option>
+                                })}
+                            </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3" controlId="formBasicPassword">

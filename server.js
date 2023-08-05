@@ -316,11 +316,24 @@ app.get('/venues', (req, res) => {
   });
 });
 
+app.get('/venue-postal-code', async (req, res) => {
+
+  try {
+    const postalcode = await pool.query('SELECT DISTINCT postalcode FROM VenuePostalCode');
+
+    res.json({ postalcode: postalcode.rows});
+  } catch (err) {
+    console.error('Error executing queries', err);
+    res.status(500).send('Error inserting into database');
+    res.status(500).send('Error inserting venue into database');
+  }
+})
+
 //TODO: Add PostalCode/DONE + Add City and Province
 app.put('/update-venue', (req, res) => {
-  const {name, postalcode, capacity, city, province, vid} = req.body;
+  const {name, postalcode, capacity, vid} = req.body;
 
-  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3, city=$4, province=$5 WHERE vid=$6', [name, postalcode, capacity, city, province, vid], (err, result) => {
+  pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3 WHERE vid=$4', [name, postalcode, capacity, vid], (err, result) => {
       if (err) {
         console.error('Error executing query', err);
         res.status(500).send('Error retrieving users');
@@ -331,19 +344,28 @@ app.put('/update-venue', (req, res) => {
 });
 
 //TODO: Add Postal Code/DONE + Add City and Province
-app.post('/add-venue', (req, res) => {
+app.post('/add-venue', async (req, res) => {
   const vid = uuidv4();
-  const {name, postalcode, capacity, city, province} = req.body;
+  const {name, postalcode, capacity} = req.body;
 
-  pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4, $5, $6)', [vid, name, postalcode, capacity, city, province], (err, result) => {
-      if (err) {
-        console.error('Error executing query', err);
-        res.status(500).send('Error retrieving users');
-      } else {
-        res.json(result.rows);
-      }
-  });
+  try {
+    const addVenueResult = await pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, postalcode, capacity]);
+    res.json(addVenueResult.rows);
+  } catch (err) {
+    console.error('Error executing queries', err);
+    res.status(500).send('Error inserting game into database');
+  }
 });
+
+//   pool.query('INSERT INTO Venue VALUES ($1, $2, $3, $4)', [vid, name, postalcode, capacity], (err, result) => {
+//       if (err) {
+//         console.error('Error executing query', err);
+//         res.status(500).send('Error retrieving users');
+//       } else {
+//         res.json(result.rows);
+//       }
+//   });
+// });
 
 app.get('/games', async (req, res) => {
   const {
