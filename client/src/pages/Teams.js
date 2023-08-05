@@ -97,11 +97,12 @@ const Teams = () => {
 
     const handlePlayerDelete = async (event) => {
         event.preventDefault();
-        const pid = event.target.id.split('_')[1]
+        const pid = event.target.id.split('_')[1];
+        const tid = team.tid;
         try {
             const response = await axios.delete(`http://localhost:5000/delete-player/${pid}`);
             console.log(response);
-            fetchPlayers();
+            fetchPlayers(tid);
         } catch (error) {
             console.log(error.message);
         }
