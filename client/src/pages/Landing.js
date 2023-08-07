@@ -25,7 +25,7 @@ const Landing = () => {
                     <p className='text-secondary'>
                         Effortlessly manage teams, games, venues, sponsors, players, coaches, and users. Gain insights into coach salaries, game attendance, and more. Filter data with ease. Elevate your sports management with Playbook.
                     </p>
-                    <Button variant='info' onClick={() => navigate('/login')}><h4>Login</h4></Button>
+                    <Button variant='info' size='lg' onClick={() => navigate('/login')}>Login</Button>
                 </Col>
                 <Col md={6} className='p-4'>
                     <img src={img} alt='sport-image' className='w-100'/>
