@@ -12,3 +12,21 @@
     min-height: 100vh;
     background-color: #DCE8E8;
 }
+
+.nav-tabs .nav-link {
+    background-color: transparent !important;
+    color:  #343a40 !important;
+    border: none !important;
+}
+
+.nav-tabs .nav-link.active {
+    border-top: solid 4px #17a2b8 !important;
+    background-color: #c9d5d5 !important;
+    color:  #17a2b8 !important;
+    border-bottom: none !important;
+}
+
+.nav-tabs :hover {
+    background-color: #c9d5d5 !important;
+    color:  #17a2b8 !important;
+}

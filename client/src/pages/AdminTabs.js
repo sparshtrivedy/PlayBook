@@ -47,7 +47,7 @@ const AdminTabs = () => {
                 <Tabs
                     defaultActiveKey="users"
                     id="fill-tab-example"
-                    className="mb-3"
+                    className="mb-3 myclass"
                     fill
                 > 
                     <Tab eventKey="users" title={<span className='d-flex justify-content-center align-items-center'><FaUser className='mx-2'/>Users</span>}>
