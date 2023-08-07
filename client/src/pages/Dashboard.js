@@ -8,7 +8,7 @@ import { FaArrowRightFromBracket } from 'react-icons/fa6'
 const Dashboard = () => {
     const navigate = useNavigate()
     return (
-        <>
+        <div className='bg-container'>
             <Navbar className="px-3 d-flex" style={{'backgroundColor': '#08a7cf'}}>
                 <Container>
                     <Navbar.Brand className='text-light'>
@@ -34,7 +34,7 @@ const Dashboard = () => {
                 <h2 className='m-4'>{localStorage.getItem('role')} Dashboard</h2>
                 <AdminTabs />
             </Col>
-        </>
+        </div>
     )
 }
 

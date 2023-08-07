@@ -1,0 +1,14 @@
+.landing-container {
+    min-height: 100vh;
+    background-color: #DCE8E8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.bg-container {
+    overflow: hidden;
+    min-height: 100vh;
+    background-color: #DCE8E8;
+}

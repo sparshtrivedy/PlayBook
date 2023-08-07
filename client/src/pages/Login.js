@@ -33,6 +33,7 @@ function Login() {
   };
 
   return (
+    <div className='landing-container'>
     <Col md={4} className='mx-auto'>
       <Card className='m-4 bg-light'>
         <Card.Header style={{'backgroundColor': '#08a7cf'}} className='d-block justify-content-center'>
@@ -69,6 +70,7 @@ function Login() {
         </Form>
       </Card>
     </Col>
+    </div>
   );
 }
 
