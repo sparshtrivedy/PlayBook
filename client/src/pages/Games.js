@@ -36,6 +36,11 @@ const Games = () => {
         capacity: true,
         admin: true
     });
+    const config = {
+        headers: {
+            Authorization: `Bearer ${localStorage.token}`,
+        },
+    };
 
     const handleCloseModal = () => setShowModal(false);
     const handleShowModal = () => setShowModal(true);
@@ -175,7 +180,7 @@ const Games = () => {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/teams');
+            const response = await axios.get('http://localhost:5000/teams', config);
             setTeams(response.data);
         } catch (error) {
             console.log(error.message);

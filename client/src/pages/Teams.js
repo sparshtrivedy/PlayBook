@@ -25,6 +25,11 @@ const Teams = () => {
     const [status, setStatus] = useState([])
     const [type, setType] = useState([])
     const [specialization, setSpecialization] = useState([])
+    const config = {
+        headers: {
+            Authorization: `Bearer ${localStorage.token}`,
+        },
+    };
 
     const handleMaxAvgCoachType = async (e) => {
         fetchMaxAvgCoachType();
@@ -266,7 +271,7 @@ const Teams = () => {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/teams');
+            const response = await axios.get('http://localhost:5000/teams', config);
             setTeams(response.data);
         } catch (error) {
             console.log(error.message);

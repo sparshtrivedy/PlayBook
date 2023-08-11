@@ -49,22 +49,25 @@ const AdminTabs = () => {
                     id="fill-tab-example"
                     className="mb-3 myclass"
                     fill
-                > 
+                >
+                    {localStorage.role === 'Admin' &&
                     <Tab eventKey="users" title={<span className='d-flex justify-content-center align-items-center'><FaUser className='mx-2'/>Users</span>}>
                         <Users />
-                    </Tab>
+                    </Tab>}
                     <Tab eventKey="teams" title={<span className='d-flex justify-content-center align-items-center'><FaPeopleGroup className='mx-2'/>Teams</span>}>
                         <Teams />
                     </Tab>
                     <Tab eventKey="games" title={<span className='d-flex justify-content-center align-items-center'><FaBasketball className='mx-2'/>Games</span>}>
                         <Games />
                     </Tab>
+                    {localStorage.role === 'Admin' &&
                     <Tab eventKey="venues" title={<span className='d-flex justify-content-center align-items-center'><FaBuilding className='mx-2'/>Venues</span>}>
                         <Venues />
-                    </Tab>
+                    </Tab>}
+                    {localStorage.role === 'Admin' &&
                     <Tab eventKey="custom" title={<span className='d-flex justify-content-center align-items-center'><FaHandPointer className='mx-2'/>Custom</span>}>
                         <Custom />
-                    </Tab>
+                    </Tab>}
                 </Tabs>
             </Col>
         </Row>
