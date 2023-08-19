@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Form, Row, Col, Button, Card, Table } from 'react-bootstrap';
 import { FaGreaterThanEqual } from 'react-icons/fa6'
-import axios from 'axios';
+import api from '../api';
 
 const Custom = () => {
     const [table, setTable] = useState('');
@@ -65,7 +65,7 @@ const Custom = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.get('http://localhost:5000/custom', {params: {query, table, cols}});
+            const response = await api.get('/custom', {params: {query, table, cols}});
             setResult(response.data)
         } catch (error) {
             console.log(error.message);

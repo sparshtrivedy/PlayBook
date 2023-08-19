@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Button, Offcanvas, Form, Badge, Modal, Row, Col } from 'react-bootstrap';
 import { FaFilter } from 'react-icons/fa6'
-import axios from 'axios';
+import api from '../api';
 
 const Users = () => {
     const [users, setUsers] = useState([]);
@@ -54,7 +54,7 @@ const Users = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5000/update-user', user);
+            const response = await api.put('/update-user', user);
             console.log(response);
             fetchUsers();
             handleClose();
@@ -66,7 +66,7 @@ const Users = () => {
     const handleSubmitAddUser = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/add-user', user);
+            const response = await api.post('/add-user', user);
             console.log(response);
             fetchUsers();
             handleAddUserClose();
@@ -79,7 +79,7 @@ const Users = () => {
         event.preventDefault();
         const uid = event.target.id.split('_')[1]
         try {
-            const response = await axios.delete(`http://localhost:5000/delete-user/${uid}`);
+            const response = await api.delete(`/delete-user/${uid}`);
             console.log(response);
             fetchUsers();
             handleAddUserClose();
@@ -90,7 +90,7 @@ const Users = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/users', {params: cols});
+            const response = await api.get('/users', {params: cols});
             setUsers(response.data);
         } catch (error) {
             console.log(error.message);
@@ -99,7 +99,7 @@ const Users = () => {
 
     const fetchFilteredRoles = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/filtered-roles/${filterRole}`);
+            const response = await api.get(`/filtered-roles/${filterRole}`);
             setUsers(response.data);
         } catch (error) {
             console.log(error.message);

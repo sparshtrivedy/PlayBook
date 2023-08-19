@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Button, Form, Card, Alert, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { FaLock } from 'react-icons/fa6'
+import api from '../api';
 
 function Login() {
   const navigate = useNavigate()
@@ -14,7 +14,7 @@ function Login() {
     event.preventDefault();
     
     try {
-      const response = await axios.post('http://localhost:5000/login', {
+      const response = await api.post('/login', {
         email: email,
         password: password
       });

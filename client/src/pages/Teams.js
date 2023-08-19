@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Button, Offcanvas, Form, Alert } from 'react-bootstrap';
 import { FaMoneyBillTrendUp } from 'react-icons/fa6'
-import axios from 'axios';
+import api from '../api';
 
 const Teams = () => {
     const [teams, setTeams] = useState([]);
@@ -82,7 +82,7 @@ const Teams = () => {
         event.preventDefault();
         const tid = event.target.id.split('_')[1]
         try {
-            const response = await axios.delete(`http://localhost:5000/delete-team/${tid}`);
+            const response = await api.delete(`/delete-team/${tid}`);
             console.log(response);
             fetchTeams();
         } catch (error) {
@@ -103,7 +103,7 @@ const Teams = () => {
         const pid = event.target.id.split('_')[1];
         const tid = team.tid;
         try {
-            const response = await axios.delete(`http://localhost:5000/delete-player/${pid}`);
+            const response = await api.delete(`/delete-player/${pid}`);
             console.log(response);
             fetchPlayers(tid);
         } catch (error) {
@@ -116,7 +116,7 @@ const Teams = () => {
         const pid = event.target.id.split('_')[1];
         const tid = team.tid;
         try {
-            const response = await axios.delete(`http://localhost:5000/delete-coach/${pid}`);
+            const response = await api.delete(`/delete-coach/${pid}`);
             console.log(response);
             fetchCoaches(tid);
         } catch (error) {
@@ -134,7 +134,7 @@ const Teams = () => {
 
     const fetchUsers = async () => {
         try {
-            const users = await axios.get('http://localhost:5000/users', {params: {
+            const users = await api.get('/users', {params: {
                 firstname: true,
                 lastname: true,
                 email: true,
@@ -150,7 +150,7 @@ const Teams = () => {
     const fetchPlayers = async (tid) => {
         setTeam(teams.filter(team => team.tid === tid)[0]);
         try {
-            const response = await axios.get(`http://localhost:5000/players/${tid}`);
+            const response = await api.get(`/players/${tid}`);
             setPlayers(response.data);
         } catch (error) {
             console.log(error.message);
@@ -159,7 +159,7 @@ const Teams = () => {
 
     const fetchPlayerContracts = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/players-contract');
+            const response = await api.get('/players-contract');
             setExp(response.data.yrs_of_exp);
             setStatus(response.data.status);
         } catch (error) {
@@ -171,7 +171,7 @@ const Teams = () => {
     const fetchCoaches = async (tid) => {
         setTeam(teams.filter(team => team.tid === tid)[0]);
         try {
-            const response = await axios.get(`http://localhost:5000/coaches/${tid}`);
+            const response = await api.get(`/coaches/${tid}`);
             setCoaches(response.data);
         } catch (error) {
             console.log(error.message);
@@ -180,7 +180,7 @@ const Teams = () => {
 
     const fetchCoachSalary = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/coach-salary');
+            const response = await api.get('/coach-salary');
             setType(response.data.type);
             setSpecialization(response.data.specialization);
         } catch (error) {
@@ -191,7 +191,7 @@ const Teams = () => {
     const handleSubmitAddTeam = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/add-team', team);
+            const response = await api.post('/add-team', team);
             console.log(response);
             fetchTeams();
             handleAddTeamClose();
@@ -205,7 +205,7 @@ const Teams = () => {
         try {
             const tid = event.target.id.split('_')[1];
             setTeam(teams.filter(team => team.tid === tid)[0]);
-            const response = await axios.post(`http://localhost:5000/add-player/${tid}`, player);
+            const response = await api.post(`add-player/${tid}`, player);
             console.log(response);
             fetchPlayers(tid);
             handleAddPlayerClose();
@@ -219,7 +219,7 @@ const Teams = () => {
         try {
             const pid = player.pid;
             setPlayer(players.filter(player => player.pid === pid)[0]);
-            const response = await axios.put(`http://localhost:5000/update-player/${pid}`, player);
+            const response = await api.put(`/update-player/${pid}`, player);
             console.log(response);
             fetchPlayers(player.tid);
             handleEditPlayerClose();
@@ -233,7 +233,7 @@ const Teams = () => {
         try {
             const tid = event.target.id.split('_')[1];
             setTeam(teams.filter(team => team.tid === tid)[0]);
-            const response = await axios.post(`http://localhost:5000/add-coach/${tid}`, coach);
+            const response = await api.post(`/add-coach/${tid}`, coach);
             console.log(response);
             fetchCoaches(tid);
             handleAddCoachClose();
@@ -247,7 +247,7 @@ const Teams = () => {
         try {
             const pid = coach.pid;
             setCoach(coaches.filter(coach => coach.pid === pid)[0]);
-            const response = await axios.put(`http://localhost:5000/update-coach/${pid}`, coach);
+            const response = await api.put(`/update-coach/${pid}`, coach);
             console.log(response);
             fetchCoaches(coach.tid);
             handleEditCoachClose();
@@ -260,7 +260,7 @@ const Teams = () => {
         event.preventDefault();
         const tid = team.tid;
         try {
-            const response = await axios.put(`http://localhost:5000/update-team/${tid}`, team);
+            const response = await api.put(`/update-team/${tid}`, team);
             console.log(response);
             fetchTeams();
             handleClose();
@@ -271,7 +271,7 @@ const Teams = () => {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/teams', config);
+            const response = await api.get('/teams', config);
             setTeams(response.data);
         } catch (error) {
             console.log(error.message);
@@ -280,7 +280,7 @@ const Teams = () => {
 
     const fetchMaxAvgCoachType = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/max-avg-coach-type');
+            const response = await api.get('/max-avg-coach-type');
             setMaxAvgCoach(response.data);
         } catch (error) {
             console.log(error.message);

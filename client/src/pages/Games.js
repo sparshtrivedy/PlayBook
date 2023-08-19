@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Button, Form, Offcanvas, Modal, Row, Col, Alert } from 'react-bootstrap';
 import { FaGreaterThan, FaFilter, FaRankingStar, FaCalculator } from 'react-icons/fa6'
-import axios from 'axios';
+import api from '../api';
 
 const Games = () => {
     const [games, setGames] = useState([]);
@@ -86,7 +86,7 @@ const Games = () => {
 
     const fetchBiggestFan = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/biggest-fan`);
+            const response = await api.get(`/biggest-fan`);
             console.log(response.data);
             setBiggestFan(response.data);
         } catch (error) {
@@ -96,7 +96,7 @@ const Games = () => {
 
     const fetchFilteredGames = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/filtered-games/${after}/${before}`);
+            const response = await api.get(`/filtered-games/${after}/${before}`);
             setGames(response.data);
         } catch (error) {
             console.log(error.message);
@@ -113,7 +113,7 @@ const Games = () => {
         event.preventDefault();
         const gid = event.target.id.split('_')[1]
         try {
-            const response = await axios.delete(`http://localhost:5000/delete-game/${gid}`);
+            const response = await api.delete(`/delete-game/${gid}`);
             console.log(response);
             fetchGames();
         } catch (error) {
@@ -141,7 +141,7 @@ const Games = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5000/update-game', game);
+            const response = await api.put('/update-game', game);
             fetchGames();
             handleClose();
         } catch (error) {
@@ -152,7 +152,7 @@ const Games = () => {
     const handleAddGameSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5000/add-game', game);
+            const response = await api.put('/add-game', game);
             fetchGames();
             handleAddGameClose();
         } catch (error) {
@@ -162,7 +162,7 @@ const Games = () => {
 
     const fetchGames = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/games`, {params: cols});
+            const response = await api.get(`/games`, {params: cols});
             setGames(response.data);
         } catch (error) {
             console.log(error.message);
@@ -171,7 +171,7 @@ const Games = () => {
 
     const fetchVenues = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/venues');
+            const response = await api.get('/venues');
             setVenues(response.data);
         } catch (error) {
             console.log(error.message);
@@ -180,7 +180,7 @@ const Games = () => {
 
     const fetchTeams = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/teams', config);
+            const response = await api.get('/teams', config);
             setTeams(response.data);
         } catch (error) {
             console.log(error.message);
@@ -189,7 +189,7 @@ const Games = () => {
 
     const fetchAttendees = async (gid) => {
         try {
-            const response = await axios.get(`http://localhost:5000/attendee/${gid}`);
+            const response = await api.get(`/attendee/${gid}`);
             console.log(response.data)
             setAttendees(response.data);
         } catch (error) {
@@ -199,7 +199,7 @@ const Games = () => {
 
     const fetchAdmins = async () => {
         try {
-            const users = await axios.get('http://localhost:5000/users', {params: {
+            const users = await api.get('/users', {params: {
                 firstname: true,
                 lastname: true,
                 email: true,
@@ -214,7 +214,7 @@ const Games = () => {
 
     const fetchStats = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/stats');
+            const response = await api.get('/stats');
             setStats(response.data);
         } catch (error) {
             console.log(error.message);
@@ -223,7 +223,7 @@ const Games = () => {
 
     const fetchAvg = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/avg-revenue');
+            const response = await api.get('/avg-revenue');
             console.log(response)
             setAvg(response.data[0]['avg_price']);
         } catch (error) {
@@ -233,7 +233,7 @@ const Games = () => {
 
     const fetchFilteredRevenue = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/filter-revenue/${upper}/${lower}`);
+            const response = await api.get(`/filter-revenue/${upper}/${lower}`);
             setFilteredRev(response.data);
         } catch (error) {
             console.log(error.message);

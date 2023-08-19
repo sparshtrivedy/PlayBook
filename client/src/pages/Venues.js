@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Table, Button, Form, Offcanvas } from 'react-bootstrap';
-import axios from 'axios';
+import api from '../api';
 
 const Venues = () => {
     const [venues, setVenues] = useState([]);
@@ -31,7 +31,7 @@ const Venues = () => {
         const fetchSponsors = async () => {
             if (venue.vid) {
                 try {
-                    const response = await axios.get(`http://localhost:5000/sponsors/${venue.vid}`);
+                    const response = await api.get(`/sponsors/${venue.vid}`);
                     setSponsors(response.data);
                 } catch (error) {
                     console.log(error.message);
@@ -54,7 +54,7 @@ const Venues = () => {
         event.preventDefault();
         const vid = event.target.id.split('_')[1]
         try {
-            const response = await axios.delete(`http://localhost:5000/delete-venue/${vid}`);
+            const response = await api.delete(`/delete-venue/${vid}`);
             console.log(response);
             fetchVenues();
             handleAddVenueClose();
@@ -65,7 +65,7 @@ const Venues = () => {
 
     const fetchVenues = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/venues');
+            const response = await api.get('/venues');
             setVenues(response.data);
         } catch (error) {
             console.log(error.message);
@@ -74,7 +74,7 @@ const Venues = () => {
 
     const fetchVenuePostalCode = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/venue-postal-code');
+            const response = await api.get('/venue-postal-code');
             setPostalCode(response.data.postalcode);
         } catch (error) {
             console.log(error.message);
@@ -85,7 +85,7 @@ const Venues = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.put('http://localhost:5000/update-venue', venue);
+            const response = await api.put('/update-venue', venue);
             console.log(response);
             fetchVenues();
             handleClose();
@@ -97,7 +97,7 @@ const Venues = () => {
     const handleAddSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://localhost:5000/add-venue', venue);
+            const response = await api.post('/add-venue', venue);
             console.log(response);
             fetchVenues();
             handleAddClose();
