@@ -147,7 +147,7 @@ app.delete('/delete-user/:uid', (req, res) => {
 // #region Teams
 
 // GET all teams
-app.get('/teams', authenticateJWT, (req, res) => {
+app.get('/teams', (req, res) => {
   const query = `
     SELECT TeamManaged.*, Users.email, Users.firstname, Users.lastname 
     FROM TeamManaged 
