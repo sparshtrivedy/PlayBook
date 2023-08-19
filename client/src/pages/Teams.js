@@ -340,22 +340,20 @@ const Teams = () => {
                 </thead>
                 <tbody>
                     {teams.map((team) => {
-                        if (localStorage.role === 'Manager' && localStorage.firstname === team.firstname && localStorage.lastname === team.lastname) {
-                            return (
-                                <tr key={team.tid}>
-                                    <td>{team.name}</td>
-                                    <td>{team.city}</td>
-                                    <td>{team.winrate}</td>
-                                    <td>{team.firstname} {team.lastname}</td>
-                                    <td>
-                                        <Button id={`editteam_${team.tid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
-                                        <Button id={`deleteteam_${team.tid}`} variant='danger' size="sm"onClick={handleDeleteTeam}>Delete</Button>{' '}
-                                        <Button id={`players_${team.tid}`} variant='primary' size="sm" onClick={handleShowPlayers}>Players</Button>{' '}
-                                        <Button id={`coaches_${team.tid}`} variant='primary' size="sm" onClick={handleShowCoaches}>Coaches</Button>
-                                    </td>
-                                </tr>
-                            )
-                        }
+                        return (
+                            <tr key={team.tid}>
+                                <td>{team.name}</td>
+                                <td>{team.city}</td>
+                                <td>{team.winrate}</td>
+                                <td>{team.firstname} {team.lastname}</td>
+                                <td>
+                                    <Button id={`editteam_${team.tid}`} variant='warning' size="sm" onClick={handleShow}>Edit</Button>{' '}
+                                    <Button id={`deleteteam_${team.tid}`} variant='danger' size="sm"onClick={handleDeleteTeam}>Delete</Button>{' '}
+                                    <Button id={`players_${team.tid}`} variant='primary' size="sm" onClick={handleShowPlayers}>Players</Button>{' '}
+                                    <Button id={`coaches_${team.tid}`} variant='primary' size="sm" onClick={handleShowCoaches}>Coaches</Button>
+                                </td>
+                            </tr>
+                        )
                     })}
                 </tbody>
             </Table>
