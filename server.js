@@ -16,6 +16,17 @@ const pool = new Pool ({
     port: process.env.PG_PORT
 });
 
+pool.connect((err, client, done) => {
+  if (err) {
+    console.error('Database connection failed: ' + err.stack);
+    return;
+  }
+
+  console.log('Connected to database.');
+
+  done();
+});
+
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
