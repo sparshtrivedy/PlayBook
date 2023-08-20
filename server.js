@@ -36,7 +36,7 @@ app.use(
 );
 
 // Login
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { email, password} = req.body;
     console.log(email, password)
     const result = await pool.query("SELECT * FROM Users WHERE email = $1 AND password = $2", [email, password]);
@@ -77,7 +77,7 @@ const authenticateJWT = (req, res, next) => {
 // #region Users
 
 // GET all users
-app.get('/users', (req, res) => {
+app.get('/api/users', (req, res) => {
   const { firstname, lastname, email, role } = req.query;
 
   const selectedColumns = ['uid', 'password'];
@@ -99,7 +99,7 @@ app.get('/users', (req, res) => {
 });
 
 // GET filtered users with the following role
-app.get('/filtered-roles/:filterRole', (req, res) => {
+app.get('/api/filtered-roles/:filterRole', (req, res) => {
   const filterRole = req.params['filterRole'];
 
   pool.query(`SELECT * FROM Users WHERE role=$1`, [filterRole], (err, result) => {
@@ -113,7 +113,7 @@ app.get('/filtered-roles/:filterRole', (req, res) => {
 });
 
 // CREATE new user
-app.post('/add-user', (req, res) => {
+app.post('/api/add-user', (req, res) => {
   const uid = uuidv4(); 
   const { email, password, firstname, lastname, role } = req.body;
 
@@ -126,7 +126,7 @@ app.post('/add-user', (req, res) => {
 });
 
 // UPDATE existing user
-app.put('/update-user', (req, res) => {
+app.put('/api/update-user', (req, res) => {
     const uid = req.body.uid;
     const { email, password, firstname, lastname, role } = req.body;
 
@@ -139,7 +139,7 @@ app.put('/update-user', (req, res) => {
 });
 
 // DELETE User
-app.delete('/delete-user/:uid', (req, res) => {
+app.delete('/api/delete-user/:uid', (req, res) => {
   const uid = req.params['uid'];
 
   pool.query('DELETE FROM Users WHERE uid = $1', [uid], (error, results) => {
@@ -154,7 +154,7 @@ app.delete('/delete-user/:uid', (req, res) => {
 // #region Teams
 
 // GET all teams
-app.get('/teams', (req, res) => {
+app.get('/api/teams', (req, res) => {
   const query = `
     SELECT TeamManaged.*, Users.email, Users.firstname, Users.lastname 
     FROM TeamManaged 
@@ -171,7 +171,7 @@ app.get('/teams', (req, res) => {
 });
 
 // CREATE new team
-app.post('/add-team', (req, res) => {
+app.post('/api/add-team', (req, res) => {
   const tid = uuidv4(); 
   const { uid, city, name, winrate } = req.body;
   
@@ -184,7 +184,7 @@ app.post('/add-team', (req, res) => {
 });
 
 // UPDATE existing team
-app.put('/update-team/:tid', (req, res) => {
+app.put('/api/update-team/:tid', (req, res) => {
   const tid = req.params['tid'];
   const {name, city, winrate, uid} = req.body;
 
@@ -199,7 +199,7 @@ app.put('/update-team/:tid', (req, res) => {
 });
 
 // DELETE Team - Cascade deletes Game and Tickets associated with those games
-app.delete('/delete-team/:tid', async (req, res) => {
+app.delete('/api/delete-team/:tid', async (req, res) => {
   const tid = req.params['tid'];
 
   pool.query('DELETE FROM teammanaged WHERE tid = $1', [tid], (error, results) => {
@@ -214,7 +214,7 @@ app.delete('/delete-team/:tid', async (req, res) => {
 // #region Coaches
 
 // GET all Coaches for this team
-app.get('/coaches/:tid', (req, res) => {
+app.get('/api/coaches/:tid', (req, res) => {
   const tid = req.params['tid'];
   pool.query('SELECT sp.*, c.type, c.specialization, cs.salary FROM SportsPeople sp JOIN Coach c ON sp.pid = c.pid JOIN CoachSalary cs ON c.type = cs.type AND c.specialization = cs.specialization WHERE tid = $1', [tid], (err, result) => {
       if (err) {
@@ -227,7 +227,7 @@ app.get('/coaches/:tid', (req, res) => {
 });
 
 // CREATE new Coach
-app.post('/add-coach/:tid', async (req, res) => {
+app.post('/api/add-coach/:tid', async (req, res) => {
   const pid = uuidv4(); 
   const tid = req.params['tid'];
   const {firstname, lastname, type, specialization} = req.body;
@@ -246,7 +246,7 @@ try {
 });
 
 // UPDATE existing Coach
-app.put('/update-coach/:pid', async (req, res) => {
+app.put('/api/update-coach/:pid', async (req, res) => {
   const pid = req.params['pid'];
   const {firstname, lastname, type, specialization, tid} = req.body;
 
@@ -264,7 +264,7 @@ try {
 });
 
 // GET all coach types where avg salary is greater than the avg salary of all coaches (nested group by with aggregation)
-app.get('/max-avg-coach-type', (req, res) => {
+app.get('/api/max-avg-coach-type', (req, res) => {
   const query = `
     SELECT c.type, AVG(salary::numeric) AS avg_salary
     FROM Coach c
@@ -287,7 +287,7 @@ app.get('/max-avg-coach-type', (req, res) => {
 })
 
 // DELETE Coach - Cascade deletes corresponding SportsPeople entry
-app.delete('/delete-coach/:pid', async (req, res) => {
+app.delete('/api/delete-coach/:pid', async (req, res) => {
   const pid = req.params['pid'];
 
   pool.query('DELETE FROM sportspeople WHERE pid = $1', [pid], (error, results) => {
@@ -299,7 +299,7 @@ app.delete('/delete-coach/:pid', async (req, res) => {
 });
 
 // GET coach types and specializations
-app.get('/coach-salary', async (req, res) => {
+app.get('/api/coach-salary', async (req, res) => {
   try {
     const type = await pool.query('SELECT DISTINCT type FROM CoachSalary');
 
@@ -317,7 +317,7 @@ app.get('/coach-salary', async (req, res) => {
 // #region Venue
 
 // GET all venues
-app.get('/venues', (req, res) => {
+app.get('/api/venues', (req, res) => {
   const query = `
     SELECT v.*, vpc.city, vpc.province
     FROM Venue v 
@@ -334,7 +334,7 @@ app.get('/venues', (req, res) => {
 });
 
 // CREATE new venue
-app.post('/add-venue', async (req, res) => {
+app.post('/api/add-venue', async (req, res) => {
   const vid = uuidv4();
   const {name, capacity, postalcode} = req.body;
 
@@ -348,7 +348,7 @@ app.post('/add-venue', async (req, res) => {
 });
 
 // UPDATE existing venue
-app.put('/update-venue', (req, res) => {
+app.put('/api/update-venue', (req, res) => {
   const {name, postalcode, capacity, vid} = req.body;
 
   pool.query('UPDATE Venue SET name=$1, postalcode=$2, capacity=$3 WHERE vid=$4', [name, postalcode, capacity, vid], (err, result) => {
@@ -362,7 +362,7 @@ app.put('/update-venue', (req, res) => {
 });
 
 // DELETE Venue
-app.delete('/delete-venue/:vid', async (req, res) => {
+app.delete('/api/delete-venue/:vid', async (req, res) => {
   const vid = req.params['vid'];
 
   pool.query('DELETE FROM Venue WHERE vid = $1', [vid], (error, results) => {
@@ -374,7 +374,7 @@ app.delete('/delete-venue/:vid', async (req, res) => {
 });
 
 // GET venue postal codes
-app.get('/venue-postal-code', async (req, res) => {
+app.get('/api/venue-postal-code', async (req, res) => {
 
   try {
     const postalcode = await pool.query('SELECT DISTINCT postalcode FROM VenuePostalCode');
@@ -388,7 +388,7 @@ app.get('/venue-postal-code', async (req, res) => {
 })
 
 // GET all sponsors for this venue
-app.get('/sponsors/:vid', async (req, res) => {
+app.get('/api/sponsors/:vid', async (req, res) => {
   const vid = req.params['vid'];
 
   pool.query('SELECT s.*, svc.status, v.vid, v.name as venue, sv.contribution FROM Sponsor s JOIN SponsorVenue sv ON s.sid = sv.sid JOIN Venue v ON v.vid = sv.vid JOIN SponsorVenueContribution svc on svc.contribution = sv.contribution WHERE v.vid = $1', [vid], (err, result) => {
@@ -405,7 +405,7 @@ app.get('/sponsors/:vid', async (req, res) => {
 // #region Game
 
 // GET all games and get only the attributes requested by the user (projection)
-app.get('/games', async (req, res) => {
+app.get('/api/games', async (req, res) => {
   const {
     date, sport, home, away, starts, ends, venue, city, capacity, admin
   } = req.query;
@@ -447,7 +447,7 @@ app.get('/games', async (req, res) => {
 });
 
 // GET the games which fall between these dates (join query with where)
-app.get('/filtered-games/:after/:before', async (req, res) => {
+app.get('/api/filtered-games/:after/:before', async (req, res) => {
   const after = req.params['after'];
   const before = req.params['before'];
 
@@ -473,7 +473,7 @@ app.get('/filtered-games/:after/:before', async (req, res) => {
 });
 
 // CREATE new game
-app.put('/add-game', async (req, res) => {
+app.put('/api/add-game', async (req, res) => {
   const gid = uuidv4(); 
   const { date, sport, start_time, end_time, vid, home_tid, away_tid, uid} = req.body;
 
@@ -487,7 +487,7 @@ app.put('/add-game', async (req, res) => {
 });
 
 // UPDATE existing game
-app.put('/update-game', async (req, res) => {
+app.put('/api/update-game', async (req, res) => {
   const { gid, date, sport, start_time, end_time, vid, home_tid, away_tid, uid} = req.body;
 
   try {
@@ -500,7 +500,7 @@ app.put('/update-game', async (req, res) => {
 });
 
 // DELETE Game - Cascade deletes tickets
-app.delete('/delete-game/:gid', (req, res) => {
+app.delete('/api/delete-game/:gid', (req, res) => {
   const gid = req.params['gid'];
 
   pool.query('DELETE FROM game WHERE gid = $1', [gid], (error, results) => {
@@ -512,7 +512,7 @@ app.delete('/delete-game/:gid', (req, res) => {
 });
 
 // GET all attendees for this game
-app.get('/attendee/:gid', (req, res) => {
+app.get('/api/attendee/:gid', (req, res) => {
   const gid = req.params['gid'];
 
   const query = `
@@ -533,7 +533,7 @@ app.get('/attendee/:gid', (req, res) => {
 });
 
 // GET attendees that have purchased tickets to all games (Division)
-app.get('/biggest-fan', async (req, res) => {
+app.get('/api/biggest-fan', async (req, res) => {
   const query = `
   SELECT a.aid, a.firstname, a.lastname
   FROM Attendee a
@@ -557,7 +557,7 @@ app.get('/biggest-fan', async (req, res) => {
 })
 
 // find the total revenue for each game (group by aggregation)
-app.get('/stats', (req, res) => {
+app.get('/api/stats', (req, res) => {
   const query = `
     SELECT CAST(g.date AS VARCHAR(20)), t1.name as home, t2.name as away, SUM(price) as revenue
     FROM Game g
@@ -579,7 +579,7 @@ app.get('/stats', (req, res) => {
 });
 
 // Find average revenue for each game (group by aggregation)
-app.get('/avg-revenue', (req, res) => {
+app.get('/api/avg-revenue', (req, res) => {
   const query = `
     SELECT AVG(revenue::numeric) AS avg_price
     FROM (
@@ -601,7 +601,7 @@ app.get('/avg-revenue', (req, res) => {
 });
 
 // Find games with revenue between the specified values (group by aggregation with having)
-app.get('/filter-revenue/:greater/:lower', (req, res) => {
+app.get('/api/filter-revenue/:greater/:lower', (req, res) => {
   const greater = req.params['greater'];
   const lower = req.params['lower'];
 
@@ -630,7 +630,7 @@ app.get('/filter-revenue/:greater/:lower', (req, res) => {
 // #region Players
 
 // GET all players for this team
-app.get('/players/:tid', (req, res) => {
+app.get('/api/players/:tid', (req, res) => {
   const tid = req.params['tid'];
   pool.query('SELECT sp.*, p.*, pc.contract FROM SportsPeople sp JOIN Players p ON sp.pid = p.pid JOIN PlayersContract pc ON p.yrs_of_exp = pc.yrs_of_exp AND p.status = pc.status WHERE tid = $1', [tid], (err, result) => {
       if (err) {
@@ -643,7 +643,7 @@ app.get('/players/:tid', (req, res) => {
 });
 
 // CREATE new player and add to this team
-app.post('/add-player/:tid', async (req, res) => {
+app.post('/api/add-player/:tid', async (req, res) => {
   const pid = uuidv4(); 
   const tid = req.params['tid'];
   const {firstname, lastname, jersey_num, position, status, yrs_of_exp} = req.body;
@@ -681,7 +681,7 @@ app.post('/add-player/:tid', async (req, res) => {
 });
 
 // UPDATE existing player
-app.put('/update-player/:pid', async (req, res) => {
+app.put('/api/update-player/:pid', async (req, res) => {
   const pid = req.params['pid'];
   const {firstname, lastname, jersey_num, position, status, yrs_of_exp, tid} = req.body;
   try{
@@ -718,7 +718,7 @@ app.put('/update-player/:pid', async (req, res) => {
 });
 
 // DELETE Player - Cascade deletes corresponding SportsPeople entry
-app.delete('/delete-player/:pid', async (req, res) => {
+app.delete('/api/delete-player/:pid', async (req, res) => {
   const pid = req.params['pid'];
 
   pool.query('DELETE FROM sportspeople WHERE pid = $1', [pid], (error, results) => {
@@ -730,7 +730,7 @@ app.delete('/delete-player/:pid', async (req, res) => {
 });
 
 // GET players experience and status
-app.get('/players-contract', async (req, res) => {
+app.get('/api/players-contract', async (req, res) => {
 
   try {
     const yrs_of_exp = await pool.query('SELECT DISTINCT yrs_of_exp FROM PlayersContract');
@@ -747,7 +747,7 @@ app.get('/players-contract', async (req, res) => {
 // #endregion
 
 // Query for allowing users to specify the table, columns, and condition they wish to view (selection)
-app.get('/custom', async (req, res) => {
+app.get('/api/custom', async (req, res) => {
   const {query, table, cols} = req.query;
   const selectedColumns = [];
 
